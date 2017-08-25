@@ -1,27 +1,13 @@
 package iguana.iguana.adapters;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import iguana.iguana.R;
-import iguana.iguana.common.CommonMethods;
-import iguana.iguana.fragments.timelog.TimelogDetailFragment;
-import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 
 public class TimelogAdapter extends BaseAdapter<Timelog> {

@@ -18,6 +18,7 @@ import java.util.Iterator;
 
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
+import iguana.iguana.fragments.ApiFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
 import iguana.iguana.remote.APIService;
@@ -29,10 +30,9 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TimelogCreateFragment extends Fragment {
+public class TimelogCreateFragment extends ApiFragment {
     private EditText time;
     private Issue issue;
-    private APIService mAPIService;
 
     public TimelogCreateFragment() {
         // Required empty public constructor
@@ -63,22 +63,20 @@ public class TimelogCreateFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
         View view = getView();
         Button button = (Button) view.findViewById(R.id.send);
         time = (EditText) view.findViewById(R.id.time);
+
         if (getArguments() != null)
             issue = getArguments().getParcelable("issue");
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String body_text = time.getText().toString();
-
                 HashMap body = new HashMap<>();
                 body.put("time", time.getText().toString());
-                System.out.println(body);
 
-                mAPIService.createTimelog(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Timelog>() {
+                get_api_service().createTimelog(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Timelog>() {
                                                                    @Override
                                                                    public void onResponse(Call<Timelog> call, Response<Timelog> response) {
                                                                        if (response.isSuccessful()) {

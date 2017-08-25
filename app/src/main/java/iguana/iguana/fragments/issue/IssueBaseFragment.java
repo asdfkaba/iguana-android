@@ -86,7 +86,7 @@ public class IssueBaseFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_sample, container, false);
+        return inflater.inflate(R.layout.fragment_swipe_tabs_base, container, false);
     }
 
     // BEGIN_INCLUDE (fragment_onviewcreated)

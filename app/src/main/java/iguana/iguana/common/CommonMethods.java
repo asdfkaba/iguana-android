@@ -2,6 +2,7 @@ package iguana.iguana.common;
 
 import android.graphics.drawable.Icon;
 import android.media.Image;
+import android.widget.Spinner;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -126,6 +127,17 @@ public class CommonMethods {
         Collections.sort(issueList, comp);
     }
 
+    public int getIndex(Spinner spinner, String myString)
+    {
+        int index = 0;
+        for (int i=0;i<spinner.getCount();i++){
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
 
 
  }

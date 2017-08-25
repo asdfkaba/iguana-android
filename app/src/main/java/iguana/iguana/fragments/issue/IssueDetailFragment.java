@@ -19,7 +19,6 @@ import iguana.iguana.remote.APIService;
  * A simple {@link Fragment} subclass.
  */
 public class IssueDetailFragment extends Fragment {
-    private APIService mAPIService;
     private String project;
     private long number;
     TextView title, desc, status, type;
@@ -33,7 +32,6 @@ public class IssueDetailFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
         View v = getView();
         if (issue == null)
             issue = getArguments().getParcelable("issue");

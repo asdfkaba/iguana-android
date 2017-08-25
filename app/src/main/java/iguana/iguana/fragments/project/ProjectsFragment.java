@@ -1,6 +1,5 @@
 package iguana.iguana.fragments.project;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -20,26 +19,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectAdapter;
+import iguana.iguana.fragments.ApiFragment;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
-import iguana.iguana.remote.APIService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProjectsFragment extends Fragment  implements ProjectAdapter.OnViewHolderClick<Project>{
-    private APIService mAPIService;
-    private List<Project> projects;
-    private ArrayList<String>  project_names;
+public class ProjectsFragment extends ApiFragment implements ProjectAdapter.OnViewHolderClick<Project>{
     private TextView mResponseTv;
     private Context context;
     private ProjectAdapter adapter;
@@ -75,25 +68,21 @@ public class ProjectsFragment extends Fragment  implements ProjectAdapter.OnView
 
     public void onStart() {
         super.onStart();
+
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
         View v = getView();
         progress = (ProgressBar) v.findViewById(R.id.progressBar);
         progress.setVisibility(View.VISIBLE);
         current_page = 1;
-
-
         swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeToRefresh);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapter.clear();
-                projects.clear();
                 current_page = 1;
                 progress.setVisibility(View.VISIBLE);
                 getProjects(current_page);
-
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -101,7 +90,6 @@ public class ProjectsFragment extends Fragment  implements ProjectAdapter.OnView
         getProjects(current_page);
         recyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
 
-        projects = new ArrayList<Project>();
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -111,14 +99,12 @@ public class ProjectsFragment extends Fragment  implements ProjectAdapter.OnView
     }
 
     public ProjectsFragment() {
-        // Required empty public constructor
     }
 
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Do something that differs the Activity's menu here
         menu.findItem(R.id.add).setVisible(true);
-
         super.onCreateOptionsMenu(menu, inflater);
 
     }
@@ -136,21 +122,19 @@ public class ProjectsFragment extends Fragment  implements ProjectAdapter.OnView
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.project_list, container, false);
+        return inflater.inflate(R.layout.recyclerview_list, container, false);
     }
 
 
     public void getProjects(int page) {
         Map options = new HashMap<String,String>();
         options.put("page", page);
-        mAPIService.getProjects().enqueue(new Callback<ProjectResult>() {
+        get_api_service().getProjects().enqueue(new Callback<ProjectResult>() {
             @Override
             public void onResponse(Call<ProjectResult> call, Response<ProjectResult> response) {
                 if(response.isSuccessful()) {
@@ -171,7 +155,6 @@ public class ProjectsFragment extends Fragment  implements ProjectAdapter.OnView
 
             }
         });
-
     }
 
 }

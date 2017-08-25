@@ -26,8 +26,6 @@ import android.view.ViewGroup;
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapter;
 import iguana.iguana.common.view.SlidingTabLayout;
-import iguana.iguana.fragments.issue.IssuesFragment;
-import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
 
 /**
@@ -37,75 +35,39 @@ import iguana.iguana.models.Project;
  */
 public class ProjectBaseFragment extends Fragment {
 
-    private String name_short;
     private Project project;
+    private SlidingTabLayout mSlidingTabLayout;
+    private ProjectDetailFragmentAdapter adapter;
+    private ViewPager mViewPager;
 
     public Project getProject() {
         return this.project;
     }
 
-    static final String LOG_TAG = "ProjectBaseFragment";
-
-    /**
-     * A custom {@link ViewPager} title strip which looks much like Tabs present in Android v4.0 and
-     * above, but is designed to give continuous feedback to the user when scrolling.
-     */
-    private SlidingTabLayout mSlidingTabLayout;
-
-    private ProjectDetailFragmentAdapter adapter;
-
-
-    public void replace_item(Issue item) {
-        IssuesFragment frag = (IssuesFragment) getChildFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + mViewPager.getCurrentItem());
-        frag.replace_item(item);
+    public void replace_item(Project item) {
+        ProjectsFragment frag = (ProjectsFragment) getChildFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + mViewPager.getCurrentItem());
+        //frag.replace_item(item);
     }
 
-    /**
-     * A {@link ViewPager} which will be used in conjunction with the {@link SlidingTabLayout} above.
-     */
-    private ViewPager mViewPager;
-
-    /**
-     * Inflates the {@link View} which will be displayed by this {@link Fragment}, from the app's
-     * resources
-     */
 
     public void onSaveInstanceState(Bundle outState) {
         System.out.println("onSaveInstanceState");
         super.onSaveInstanceState(outState);
-        outState.putString("name_short", name_short);
+        outState.putParcelable("project", project);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
         System.out.println("onActivityCreated");
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            name_short = savedInstanceState.getString("name_short");
+            project = savedInstanceState.getParcelable("project");
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_sample, container, false);
-    }
-
-    // BEGIN_INCLUDE (fragment_onviewcreated)
-    /**
-     * This is called after the {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has finished.
-     * Here we can pick out the {@link View}s we need to configure from the content view.
-     *
-     * We set the {@link ViewPager}'s adapter to be an instance of {@link SamplePagerAdapter}. The
-     * {@link SlidingTabLayout} is then given the {@link ViewPager} so that it can populate itself.
-     *
-     * @param view View created in {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     */
-    public void onStart(){
-        System.out.println("onStart");
-
-        super.onStart();
-
+        return inflater.inflate(R.layout.fragment_swipe_tabs_base, container, false);
     }
 
     @Override
@@ -113,25 +75,13 @@ public class ProjectBaseFragment extends Fragment {
 
         if (project == null)
             project = getArguments().getParcelable("project");
-        // BEGIN_INCLUDE (setup_viewpager)
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
+
         mViewPager = (ViewPager) getActivity().findViewById(R.id.viewpager);
 
         adapter = new ProjectDetailFragmentAdapter(getChildFragmentManager(), getActivity(), project);
         mViewPager.setAdapter(adapter);
 
-
-
-        // END_INCLUDE (setup_viewpager)
-
-        // BEGIN_INCLUDE (setup_slidingtablayout)
-        // Give the SlidingTabLayout the ViewPager, this must be done AFTER the ViewPager has had
-        // it's PagerAdapter set.
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setViewPager(mViewPager);
-        // END_INCLUDE (setup_slidingtablayout)
     }
-    // END_INCLUDE (fragment_onviewcreated)
-
-
 }

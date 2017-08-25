@@ -56,26 +56,25 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
         Bundle d = new Bundle();
         switch (position) {
             case 0:
-                System.out.println("adapter case 0");
                 frag = new ProjectDetailFragment();
-                ((ProjectDetailFragment)frag).setProject(project.getNameShort());
+                d.putParcelable("project", project);
+                frag.setArguments(d);
                 return frag;
             case 1:
-                System.out.println("adapter case 1");
                 frag = new IssuesFragment();
                 d.putString("project", project.getNameShort());
                 frag.setArguments(d);
                 return frag;
             case 2:
                 System.out.println("adapter case 3");
-
                 frag = new IssueCreateFragment();
                 d.putString("project", project.getNameShort());
                 frag.setArguments(d);
                 return frag;
         }
         frag = new ProjectDetailFragment();
-        ((ProjectDetailFragment)frag).setProject(project.getNameShort());
+        d.putParcelable("project", project);
+        frag.setArguments(d);
         return new ProjectDetailFragment();
     }
 

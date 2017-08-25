@@ -38,64 +38,39 @@ import retrofit2.Response;
 public class IssueEditFragment extends Fragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
-
-    private APIService mAPIService;
     private CommonMethods common;
     private Issue issue;
-
     public Issue getIssue() {
         return this.issue;
     }
 
-
-
-    public IssueEditFragment() {
-        // Required empty public constructor
-    }
-
-
+    public IssueEditFragment() {}
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (issue != null)
             outState.putParcelable("issue", issue);
-
     }
 
-    private int getIndex(Spinner spinner, String myString)
-    {
-        int index = 0;
-
-        for (int i=0;i<spinner.getCount();i++){
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            if(issue == null)
+        if (savedInstanceState != null && issue == null) {
                 issue = savedInstanceState.getParcelable("issue");
-
         }
     }
+
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.findItem(R.id.add).setVisible(false);
         menu.findItem(R.id.menuSort).setVisible(false);
     }
-
 
     @Override
     public void onStart() {
         super.onStart();
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
         common = new CommonMethods();
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
         View view = getView();
         Button button = (Button) view.findViewById(R.id.send);
 
@@ -111,10 +86,9 @@ public class IssueEditFragment extends Fragment {
         title.setText(issue.getTitle());
         description.setText(issue.getDescription());
         due_date.setText(issue.getDueDate());
-        priority.setSelection(getIndex(priority, common.map_priority_to_string(issue.getPriority())));
+        priority.setSelection(common.getIndex(priority, common.map_priority_to_string(issue.getPriority())));
         storypoints.setText(String.valueOf(issue.getStorypoints()));
-        type.setSelection(getIndex(type, issue.getType()));
-
+        type.setSelection(common.getIndex(type, issue.getType()));
         priority.setPrompt("Choose priority");
         type.setPrompt("Choose type");
 
@@ -123,7 +97,7 @@ public class IssueEditFragment extends Fragment {
                 // remove keyboard if still visible
                 View view = getActivity().getCurrentFocus();
                 if (view != null) {
-                    InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
 
@@ -137,71 +111,13 @@ public class IssueEditFragment extends Fragment {
 
                 HashMap body = new HashMap<>();
                 body.put("title", title.getText().toString());
-                if (body_storypoints.length()>0)
+                if (body_storypoints.length() > 0)
                     body.put("storypoints", body_storypoints);
                 body.put("description", body_description);
                 body.put("priority", common.map_priority(body_priority));
                 body.put("type", body_type);
-                if (body_due_date.length()>0)
+                if (body_due_date.length() > 0)
                     body.put("due_date", body_due_date);
-                System.out.println(body);
-
-
-
-
-
-                mAPIService.editIssue(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Issue>() {
-                                                                   @Override
-                                                                   public void onResponse(Call<Issue> call, Response<Issue> response) {
-                                                                       if (response.isSuccessful()) {
-                                                                           // update list we came from here
-                                                                           String tag = getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount()-2).getName();
-                                                                           Fragment frag;
-                                                                           frag = getFragmentManager().findFragmentByTag(tag);
-                                                                           if (frag instanceof IssuesFragment) {
-                                                                               ((IssuesFragment) frag).replace_item(response.body());
-                                                                           }
-                                                                           if (frag instanceof ProjectBaseFragment) {
-                                                                               ((ProjectBaseFragment) frag).replace_item(response.body());
-                                                                           }
-
-                                                                           // go back to list
-                                                                           getFragmentManager().popBackStack();
-
-                                                                       } else {
-                                                                           try {
-                                                                               System.out.println(response.errorBody().string());
-                                                                           } catch (IOException e) {
-                                                                               e.printStackTrace();
-                                                                           }
-                                                                           try {
-                                                                               JSONObject obj = new JSONObject(response.errorBody().string());
-                                                                               Iterator<?> keys = obj.keys();
-                                                                               while (keys.hasNext()) {
-                                                                                   String key = (String) keys.next();
-                                                                                   if (key.equals("title")) {
-                                                                                       title.setError(obj.get(key).toString());
-                                                                                   } else if (key.equals("description")) {
-                                                                                       description.setError(obj.get(key).toString());
-                                                                                   } else if (key.equals("storypoints")) {
-                                                                                       storypoints.setError(obj.get(key).toString());
-                                                                                   } else if (key.equals("due_date")) {
-                                                                                       due_date.setError(obj.get(key).toString());
-                                                                                   }
-                                                                               }
-
-                                                                           } catch (JSONException | IOException e) {
-                                                                               e.printStackTrace();
-                                                                           }
-                                                                       }
-                                                                   }
-
-                                                                   @Override
-                                                                   public void onFailure(Call<Issue> call, Throwable t) {
-                                                                       t.printStackTrace();
-                                                                   }
-                                                               }
-                    );
             }
         });
     }

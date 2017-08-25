@@ -20,6 +20,7 @@ import java.util.Iterator;
 
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
+import iguana.iguana.fragments.ApiFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.remote.APIService;
@@ -31,16 +32,13 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CommentCreateFragment extends Fragment {
+public class CommentCreateFragment extends ApiFragment {
     private EditText text;
     private Issue issue;
-    private APIService mAPIService;
 
     public CommentCreateFragment() {
         // Required empty public constructor
     }
-
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -68,7 +66,6 @@ public class CommentCreateFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
         View view = getView();
         Button button = (Button) view.findViewById(R.id.send);
         text = (EditText) view.findViewById(R.id.text);
@@ -83,7 +80,7 @@ public class CommentCreateFragment extends Fragment {
                 body.put("text", text.getText().toString());
                 System.out.println(body);
 
-                mAPIService.createComment(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Comment>() {
+                get_api_service().createComment(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Comment>() {
                                                                    @Override
                                                                    public void onResponse(Call<Comment> call, Response<Comment> response) {
                                                                        if (response.isSuccessful()) {

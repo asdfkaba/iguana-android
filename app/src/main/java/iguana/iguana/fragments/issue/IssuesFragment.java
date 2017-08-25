@@ -1,7 +1,6 @@
 package iguana.iguana.fragments.issue;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -24,9 +23,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.adapters.IssueAdapter;
+import iguana.iguana.fragments.ApiFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
 import iguana.iguana.remote.APIService;
@@ -39,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class IssuesFragment extends Fragment implements IssueAdapter.OnViewHolderClick<Issue>, IssueAdapter.OnViewHolderLongClick<Issue> {
+public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHolderClick<Issue>, IssueAdapter.OnViewHolderLongClick<Issue> {
     private APIService mAPIService;
     private TextView mResponseTv;
     private Context context;
@@ -160,8 +159,6 @@ public class IssuesFragment extends Fragment implements IssueAdapter.OnViewHolde
 
         view = getView();
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
-
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
 
@@ -319,8 +316,7 @@ public class IssuesFragment extends Fragment implements IssueAdapter.OnViewHolde
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         project =  getArguments().getString("project");
-
-        return inflater.inflate(R.layout.issue_list, container, false);
+        return inflater.inflate(R.layout.recyclerview_list, container, false);
     }
 
 
@@ -328,7 +324,7 @@ public class IssuesFragment extends Fragment implements IssueAdapter.OnViewHolde
         Map options = new HashMap<String,String>();
         options.put("page", page);
 
-        mAPIService.getIssues(options).enqueue(new Callback<IssueResult>() {
+        get_api_service().getIssues(options).enqueue(new Callback<IssueResult>() {
             @Override
             public void onResponse(Call<IssueResult> call, Response<IssueResult> response) {
                 if(response.isSuccessful()) {
@@ -364,7 +360,7 @@ public class IssuesFragment extends Fragment implements IssueAdapter.OnViewHolde
             Map options = new HashMap<String,String>();
             options.put("page", page);
 
-            mAPIService.getProjectIssues(project,options).enqueue(new Callback<IssueResult>() {
+            get_api_service().getProjectIssues(project,options).enqueue(new Callback<IssueResult>() {
                 @Override
                 public void onResponse(Call<IssueResult> call, Response<IssueResult> response) {
                     if(response.isSuccessful()) {

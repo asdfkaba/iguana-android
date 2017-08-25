@@ -24,10 +24,7 @@ import retrofit2.Response;
  * A simple {@link Fragment} subclass.
  */
 public class ProjectDetailFragment extends Fragment {
-    private APIService mAPIService;
-    private String name_short;
-    private TextView description;
-    private TextView title;
+    private TextView title, description;
     private ListView drawer;
     private Project project;
 
@@ -38,23 +35,18 @@ public class ProjectDetailFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        System.out.println("PDF onStart");
-
-        mAPIService = ((MainActivity) getActivity()).get_api_service();        View view = getView();
+        View view = getView();
+        if (project == null)
+            project = getArguments().getParcelable("project");
         title = (TextView) view.findViewById(R.id.project_name);
         description = (TextView) view.findViewById(R.id.project_description);
-        if (project == null) {
-            getProject(name_short);
-        } else {
-            title.setText(project.getName() + "("+project.getNameShort()+")");
-            description.setText(project.getDescription());
-        }
+        title.setText(project.getName());
+        description.setText(project.getDescription());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_project_detail, container, false);
     }
 
@@ -65,62 +57,16 @@ public class ProjectDetailFragment extends Fragment {
         if (project != null) {
             outState.putParcelable("project", project);
         }
-        if (name_short != null)
-            outState.putString("name_short", name_short);
-
     }
 
-    private int getIndex(Spinner spinner, String myString)
-    {
-        int index = 0;
-
-        for (int i=0;i<spinner.getCount();i++){
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null){
             title = (TextView) getActivity().findViewById(R.id.project_name);
             description = (TextView) getActivity().findViewById(R.id.project_description);
-
-            if(name_short == null)
-                name_short = savedInstanceState.getString("name_short");
-
             if(project == null)
                 project = savedInstanceState.getParcelable("project");
         }
     }
-
-    public void getProject(String name_short) {
-        mAPIService.getProject(name_short).enqueue(new Callback<Project>() {
-            @Override
-            public void onResponse(Call<Project> call, Response<Project> response) {
-                if(response.isSuccessful()) {
-                    project = response.body();
-                    title.setText(project.getName() + "("+project.getNameShort()+")");
-                    description.append(project.getDescription());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Project> call, Throwable t) {
-            }
-        });
-    }
-
-
-    public void setProject(String name_short) {
-        this.name_short = name_short;
-    }
-    public String getProject() {
-        return this.name_short;
-    }
-
-
 }

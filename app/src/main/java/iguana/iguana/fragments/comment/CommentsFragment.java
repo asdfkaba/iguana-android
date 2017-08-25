@@ -1,6 +1,5 @@
 package iguana.iguana.fragments.comment;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
@@ -23,21 +22,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 
+import iguana.iguana.fragments.ApiFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
 import iguana.iguana.models.Issue;
 
-import iguana.iguana.remote.APIService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CommentsFragment extends Fragment implements CommentAdapter.OnViewHolderClick<Comment>{
-    private APIService mAPIService;
+public class CommentsFragment extends ApiFragment implements CommentAdapter.OnViewHolderClick<Comment>{
     private List<Comment> comments;
     private TextView mResponseTv;
     private Context context;
@@ -49,6 +46,10 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnViewH
     ProgressBar progress;
     SwipeRefreshLayout swipeRefreshLayout;
 
+    public CommentsFragment() {}
+
+    @Override
+    public void onClick(View view, int position, Comment item) {}
 
     public void onStart() {
         super.onStart();
@@ -58,8 +59,6 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnViewH
 
         if(getArguments() != null)
             issue = getArguments().getParcelable("issue");
-
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
 
         current_page = 1;
 
@@ -118,9 +117,7 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnViewH
         }
     }
 
-    public CommentsFragment() {
-        // Required empty public constructor
-    }
+
 
     public void onSaveInstanceState(Bundle outState) {
         System.out.println("onSaveInstanceState");
@@ -143,14 +140,14 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnViewH
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.comment_list, container, false);
+        return inflater.inflate(R.layout.recyclerview_list, container, false);
     }
 
 
     public void getComments(Integer page, String project, Integer issue_number) {
         Map options = new HashMap<String, String>();
         options.put("page", page);
-        mAPIService.getComments(project, issue_number, options).enqueue(new Callback<CommentResult>() {
+        get_api_service().getComments(project, issue_number, options).enqueue(new Callback<CommentResult>() {
             @Override
             public void onResponse(Call<CommentResult> call, Response<CommentResult> response) {
                 if (response.isSuccessful()) {
@@ -176,9 +173,5 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnViewH
                 progress.setVisibility(View.GONE);
             }
         });
-    }
-
-    @Override
-    public void onClick(View view, int position, Comment item) {
     }
 }

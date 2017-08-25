@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
+import iguana.iguana.fragments.ApiFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.remote.APIService;
 
@@ -34,19 +35,14 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class IssueCreateFragment extends Fragment {
+public class IssueCreateFragment extends ApiFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
-
     private String project;
     private APIService mAPIService;
     private CommonMethods common;
 
-    public IssueCreateFragment() {
-        // Required empty public constructor
-    }
-
-
+    public IssueCreateFragment() {}
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -59,21 +55,8 @@ public class IssueCreateFragment extends Fragment {
             outState.putString("storypoints", storypoints.getText().toString());
         if (description != null)
             outState.putString("description", description.getText().toString());
-
     }
 
-    private int getIndex(Spinner spinner, String myString)
-    {
-        int index = 0;
-
-        for (int i=0;i<spinner.getCount();i++){
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -85,7 +68,7 @@ public class IssueCreateFragment extends Fragment {
             if (storypoints != null)
                 storypoints.setText(savedInstanceState.getString("storypoints"));
             if (priority != null)
-                priority.setSelection(getIndex(priority, savedInstanceState.getString("priority")));
+                priority.setSelection(common.getIndex(priority, savedInstanceState.getString("priority")));
         }
     }
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -138,8 +121,7 @@ public class IssueCreateFragment extends Fragment {
                     body.put("due_date", body_due_date);
 
 
-
-                mAPIService.createIssue(project, body).enqueue(new Callback<Issue>() {
+                get_api_service().createIssue(project, body).enqueue(new Callback<Issue>() {
                                                                    @Override
                                                                    public void onResponse(Call<Issue> call, Response<Issue> response) {
                                                                        if (response.isSuccessful()) {

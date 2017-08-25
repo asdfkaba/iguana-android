@@ -37,11 +37,7 @@ public class ProjectCreateFragment extends Fragment {
     private EditText description;
     private APIService mAPIService;
 
-
-    public ProjectCreateFragment() {
-        // Required empty public constructor
-    }
-
+    public ProjectCreateFragment() {}
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -52,18 +48,6 @@ public class ProjectCreateFragment extends Fragment {
 
     }
 
-    private int getIndex(Spinner spinner, String myString)
-    {
-        int index = 0;
-
-        for (int i=0;i<spinner.getCount();i++){
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
