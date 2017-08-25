@@ -1,7 +1,5 @@
 package iguana.iguana.fragments.issue;
 
-
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,7 +17,7 @@ import org.json.JSONObject;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
-import iguana.iguana.fragments.ApiFragment;
+import iguana.iguana.fragments.base.ApiFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.remote.APIService;
 
@@ -31,10 +29,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class IssueCreateFragment extends ApiFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
@@ -71,11 +65,11 @@ public class IssueCreateFragment extends ApiFragment {
                 priority.setSelection(common.getIndex(priority, savedInstanceState.getString("priority")));
         }
     }
+
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.findItem(R.id.add).setVisible(false);
         menu.findItem(R.id.menuSort).setVisible(false);
     }
-
 
     @Override
     public void onStart() {
@@ -97,8 +91,6 @@ public class IssueCreateFragment extends ApiFragment {
         priority.setSelection(2);
         priority.setPrompt("Choose priority");
         type.setPrompt("Choose type");
-
-
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -175,9 +167,7 @@ public class IssueCreateFragment extends ApiFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_issue_create, container, false);
     }
-
 
 }

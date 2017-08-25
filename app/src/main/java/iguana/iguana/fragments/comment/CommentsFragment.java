@@ -4,15 +4,10 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +20,7 @@ import java.util.Map;
 import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 
-import iguana.iguana.fragments.ApiFragment;
+import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
 import iguana.iguana.models.Issue;
@@ -34,17 +29,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CommentsFragment extends ApiFragment implements CommentAdapter.OnViewHolderClick<Comment>{
+
+public class CommentsFragment extends ApiScrollFragment implements CommentAdapter.OnViewHolderClick<Comment>{
     private List<Comment> comments;
     private TextView mResponseTv;
     private Context context;
     private CommentAdapter adapter;
     private Issue issue;
 
-    private RecyclerView recyclerView;
-    private Integer current_page;
-    ProgressBar progress;
-    SwipeRefreshLayout swipeRefreshLayout;
 
     public CommentsFragment() {}
 
@@ -54,34 +46,23 @@ public class CommentsFragment extends ApiFragment implements CommentAdapter.OnVi
     public void onStart() {
         super.onStart();
 
-        View view = getView();
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if(getArguments() != null)
             issue = getArguments().getParcelable("issue");
 
-        current_page = 1;
-
         if (adapter == null) {
-            progress = (ProgressBar) view.findViewById(R.id.progressBar);
+            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
             adapter = new CommentAdapter(getActivity(), this);
             getComments(current_page, issue.getProjectShortName(), issue.getNumber());
         }
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
-
-
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                System.out.println("ASD");
                 progress = (ProgressBar) getView().findViewById(R.id.progressBar);
                 progress.setVisibility(View.VISIBLE);
                 adapter.clear();
@@ -90,13 +71,11 @@ public class CommentsFragment extends ApiFragment implements CommentAdapter.OnVi
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
-
     }
+
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.findItem(R.id.add).setVisible(true);
-
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -117,8 +96,6 @@ public class CommentsFragment extends ApiFragment implements CommentAdapter.OnVi
         }
     }
 
-
-
     public void onSaveInstanceState(Bundle outState) {
         System.out.println("onSaveInstanceState");
         super.onSaveInstanceState(outState);
@@ -133,14 +110,6 @@ public class CommentsFragment extends ApiFragment implements CommentAdapter.OnVi
         if (savedInstanceState != null) {
             issue = savedInstanceState.getParcelable("issue");
         }
-    }
-
-
-        @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.recyclerview_list, container, false);
     }
 
 

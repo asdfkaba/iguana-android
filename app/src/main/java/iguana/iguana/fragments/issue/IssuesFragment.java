@@ -7,16 +7,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -25,7 +19,7 @@ import android.widget.Toast;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.IssueAdapter;
-import iguana.iguana.fragments.ApiFragment;
+import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
 import iguana.iguana.remote.APIService;
@@ -38,23 +32,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHolderClick<Issue>, IssueAdapter.OnViewHolderLongClick<Issue> {
-    private APIService mAPIService;
-    private TextView mResponseTv;
-    private Context context;
+
+public class IssuesFragment extends ApiScrollFragment implements IssueAdapter.OnViewHolderClick<Issue>, IssueAdapter.OnViewHolderLongClick<Issue> {
     private IssueAdapter adapter;
     private String project;
-    private Integer current_page;
-    private RecyclerView recyclerView;
     private String adapter_order = "number";
     private boolean adapter_reverse = false;
-    ProgressBar progress;
-    SwipeRefreshLayout swipeRefreshLayout;
     LinearLayout last_clicked;
-    private int scroll_y;
-    private int scroll_y2;
-    private boolean refresh=false;
-    private View view;
+
+
+    public IssuesFragment() {}
 
     @Override
     public void onClick(View view, int position, Issue item) {
@@ -91,7 +78,6 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
                 ft.commit();
             }
         });
-
     }
 
     private void undo_changes(LinearLayout issue_item) {
@@ -114,29 +100,10 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
         return true;
     }
 
-    public void onPause() {
-        super.onPause();
-        scroll_y = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-        View startView = recyclerView.getChildAt(0);
-        scroll_y2 = 0;
-        //(startView == null) ? 0 : (startView.getTop() - recyclerView.getPaddingTop());
-
-    }
-
-    public void onResume() {
-        super.onResume();
-        if (scroll_y!= -1) {
-            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(scroll_y, scroll_y2);
-        }
-
-    }
-
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("adapter_order", adapter_order);
         outState.putBoolean("adapter_reverse", adapter_reverse);
-        outState.putInt("scroll", scroll_y);
-
     }
 
 
@@ -145,8 +112,6 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
         if (savedInstanceState != null) {
                 adapter_order  = savedInstanceState.getString("adapter_order");
                 adapter_reverse = savedInstanceState.getBoolean("adapter_reverse");
-                scroll_y = savedInstanceState.getInt("scroll");
-
             }
     }
 
@@ -157,19 +122,13 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
     public void onStart() {
         super.onStart();
 
-        view = getView();
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
+        if (project == null)
+            project = getArguments().getString("project");
 
-        current_page = 1;
-        recyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.scrollToPosition(scroll_y);
         if (adapter == null) {
-            progress = (ProgressBar) view.findViewById(R.id.progressBar);
+            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
             adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project : ""), false);
             adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project : ""), "number");
@@ -181,9 +140,8 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
             else
                 getProjectIssues(project, current_page);
         }
+
         recyclerView.setAdapter(adapter);
-
-
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -239,8 +197,6 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
         SharedPreferences.Editor editor = sharedPref.edit();
 
         switch (item.getItemId()) {
-
-
             // create new issue; start IssueCreateFragment
             case R.id.add:
                 IssueCreateFragment fragment= new IssueCreateFragment();
@@ -253,7 +209,6 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                 ft.commit();
                 return true;
-
             // set adapter order type; notify_adapter to reorder
             case R.id.menuSortTitle:
                 adapter.set_order("title");
@@ -306,19 +261,6 @@ public class IssuesFragment extends ApiFragment implements IssueAdapter.OnViewHo
         editor.commit();
         return true;
     }
-
-
-    public IssuesFragment() {
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        project =  getArguments().getString("project");
-        return inflater.inflate(R.layout.recyclerview_list, container, false);
-    }
-
 
     public void getIssues(Integer page) {
         Map options = new HashMap<String,String>();

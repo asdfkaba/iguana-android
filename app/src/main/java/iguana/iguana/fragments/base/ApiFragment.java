@@ -1,4 +1,4 @@
-package iguana.iguana.fragments;
+package iguana.iguana.fragments.base;
 
 import android.app.Fragment;
 

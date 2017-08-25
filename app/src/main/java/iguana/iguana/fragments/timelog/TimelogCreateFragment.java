@@ -16,12 +16,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
-import iguana.iguana.fragments.ApiFragment;
+import iguana.iguana.fragments.base.ApiFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
-import iguana.iguana.remote.APIService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

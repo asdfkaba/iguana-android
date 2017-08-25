@@ -26,18 +26,8 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
         super(fm);
         this.context = context;
         this.issue = issue;
-
     }
 
-    public Object instantiateItem(ViewGroup container, int position) {
-        Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-        // get the tags set by FragmentPagerAdapter
-
-                System.out.println(createdFragment.getTag());
-
-        // ... save the tags somewhere so you can reference them later
-        return createdFragment;
-    }
 
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;

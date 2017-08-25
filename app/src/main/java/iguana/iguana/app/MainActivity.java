@@ -6,12 +6,9 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
@@ -28,15 +25,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
 import iguana.iguana.events.new_token;
-import iguana.iguana.fragments.DashboardFragment;
+import iguana.iguana.fragments.main.DashboardFragment;
 import iguana.iguana.R;
-import iguana.iguana.fragments.SettingsFragment;
+import iguana.iguana.fragments.main.SettingsFragment;
 import iguana.iguana.fragments.issue.IssueBaseFragment;
 import iguana.iguana.fragments.issue.IssueCreateFragment;
 import iguana.iguana.fragments.issue.IssueEditFragment;
@@ -47,12 +39,9 @@ import iguana.iguana.fragments.project.ProjectsFragment;
 import iguana.iguana.fragments.timelog.TimelogsFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
-import iguana.iguana.models.Token;
 import iguana.iguana.remote.APIService;
 import iguana.iguana.remote.ApiUtils;
 import iguana.iguana.events.rtoken_invalid;
-import retrofit2.Call;
-import retrofit2.Response;
 
 public class MainActivity extends Activity {
 

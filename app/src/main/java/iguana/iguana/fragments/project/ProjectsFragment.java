@@ -6,22 +6,17 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectAdapter;
-import iguana.iguana.fragments.ApiFragment;
+import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
 
@@ -32,18 +27,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProjectsFragment extends ApiFragment implements ProjectAdapter.OnViewHolderClick<Project>{
+
+public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapter.OnViewHolderClick<Project>{
     private TextView mResponseTv;
     private Context context;
     private ProjectAdapter adapter;
-    ProgressBar progress;
-    SwipeRefreshLayout swipeRefreshLayout;
-    private Integer current_page;
+
+
+    public ProjectsFragment() {}
 
     @Override
     public void onClick(View view, int position, Project item) {
-        //ProjectDetailFragment fragment= new ProjectDetailFragment();
-        //fragment.setProject(item.getNameShort());
         ProjectBaseFragment fragment = new ProjectBaseFragment();
         Bundle d = new Bundle();
         d.putParcelable("project", item);
@@ -53,10 +47,7 @@ public class ProjectsFragment extends ApiFragment implements ProjectAdapter.OnVi
         ft.addToBackStack("visible_fragment");
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
-
     }
-
-    private RecyclerView recyclerView;
 
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
@@ -65,20 +56,25 @@ public class ProjectsFragment extends ApiFragment implements ProjectAdapter.OnVi
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-
     public void onStart() {
         super.onStart();
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
-        View v = getView();
-        progress = (ProgressBar) v.findViewById(R.id.progressBar);
-        progress.setVisibility(View.VISIBLE);
-        current_page = 1;
-        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeToRefresh);
+
+        if (adapter == null) {
+            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
+            progress.setVisibility(View.VISIBLE);
+            getProjects(current_page);
+            adapter = new ProjectAdapter(getActivity(), this);
+        }
+
+        recyclerView.setAdapter(adapter);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                progress = (ProgressBar) getView().findViewById(R.id.progressBar);
+                progress.setVisibility(View.VISIBLE);
                 adapter.clear();
                 current_page = 1;
                 progress.setVisibility(View.VISIBLE);
@@ -87,19 +83,8 @@ public class ProjectsFragment extends ApiFragment implements ProjectAdapter.OnVi
             }
         });
 
-        getProjects(current_page);
-        recyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
-
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        adapter = new ProjectAdapter(getActivity(), this);
-        recyclerView.setAdapter(adapter);
-
     }
 
-    public ProjectsFragment() {
-    }
 
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -122,12 +107,6 @@ public class ProjectsFragment extends ApiFragment implements ProjectAdapter.OnVi
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.recyclerview_list, container, false);
     }
 
 

@@ -4,22 +4,16 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.TimelogAdapter;
-import iguana.iguana.fragments.ApiFragment;
+import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
 import iguana.iguana.models.TimelogResult;
@@ -31,35 +25,26 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TimelogsFragment extends ApiFragment implements TimelogAdapter.OnViewHolderClick<Timelog>{
-    private TextView mResponseTv;
-    private Context context;
+
+public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapter.OnViewHolderClick<Timelog>{
     private TimelogAdapter adapter;
     private Issue issue;
-    private RecyclerView recyclerView;
-    private Integer current_page;
-    ProgressBar progress;
-    SwipeRefreshLayout swipeRefreshLayout;
 
-    public TimelogsFragment() {
-    }
+    public TimelogsFragment() {}
+
 
     @Override
-    public void onClick(View view, int position, Timelog item) {
-        return;
-    }
+    public void onClick(View view, int position, Timelog item) {}
 
     public void onStart() {
         super.onStart();
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
-        View view = getView();
-        current_page = 1;
 
         if (getArguments() != null)
             issue = getArguments().getParcelable("issue");
 
         if (adapter == null) {
-            progress = (ProgressBar) view.findViewById(R.id.progressBar);
+            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
             adapter = new TimelogAdapter(getActivity(), this);
             if (issue == null)
@@ -68,13 +53,8 @@ public class TimelogsFragment extends ApiFragment implements TimelogAdapter.OnVi
                 getTimelogsForIssue(current_page, issue);
         }
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -88,7 +68,6 @@ public class TimelogsFragment extends ApiFragment implements TimelogAdapter.OnVi
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -115,16 +94,6 @@ public class TimelogsFragment extends ApiFragment implements TimelogAdapter.OnVi
         }
     }
 
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.recyclerview_list, container, false);
-    }
-
-
     public void getTimelogs(Integer page) {
         Map options = new HashMap<String, String>();
         options.put("page", page);
@@ -149,6 +118,7 @@ public class TimelogsFragment extends ApiFragment implements TimelogAdapter.OnVi
             }
         });
     }
+
     public void getTimelogsForIssue(Integer page, Issue issue) {
         Map options = new HashMap<String, String>();
         options.put("page", page);

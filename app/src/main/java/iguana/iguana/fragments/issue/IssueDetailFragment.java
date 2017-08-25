@@ -1,6 +1,5 @@
 package iguana.iguana.fragments.issue;
 
-
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -15,36 +14,30 @@ import iguana.iguana.models.Issue;
 import iguana.iguana.remote.APIService;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class IssueDetailFragment extends Fragment {
-    private String project;
-    private long number;
     TextView title, desc, status, type;
     Issue issue;
     ProgressBar progress;
 
+    public IssueDetailFragment() {}
 
-    public IssueDetailFragment() {
-        // Required empty public constructor
-    }
     @Override
     public void onStart() {
         super.onStart();
         View v = getView();
+
         if (issue == null)
             issue = getArguments().getParcelable("issue");
 
         View view = getView();
-        TextView title = (TextView) view.findViewById(R.id.issue_title);
+        title = (TextView) getView().findViewById(R.id.issue_title);
         title.setText(issue.getTitle());
         title.append(" ("+ issue.getProject()+"-"+issue.getNumber()+")");
-        TextView desc = (TextView) view.findViewById(R.id.issue_description);
+        desc = (TextView) getView().findViewById(R.id.issue_description);
         desc.setText(issue.getDescription());
-        TextView status = (TextView) view.findViewById(R.id.issue_status);
+        status = (TextView) getView().findViewById(R.id.issue_status);
         status.setText(issue.getKanbancol());
-        TextView type = (TextView) view.findViewById(R.id.issue_type);
+        type = (TextView) getView().findViewById(R.id.issue_type);
         type.setText(issue.getType());
     }
 
@@ -64,15 +57,14 @@ public class IssueDetailFragment extends Fragment {
             if (issue == null)
                 issue = savedInstanceState.getParcelable("issue");
 
-            TextView title = (TextView) getView().findViewById(R.id.issue_title);
+            title = (TextView) getView().findViewById(R.id.issue_title);
             title.setText(issue.getTitle());
             title.append(" ("+ issue.getProject()+"-"+issue.getNumber()+")");
-            TextView desc = (TextView) getView().findViewById(R.id.issue_description);
+            desc = (TextView) getView().findViewById(R.id.issue_description);
             desc.setText(issue.getDescription());
-            TextView status = (TextView) getView().findViewById(R.id.issue_status);
+            status = (TextView) getView().findViewById(R.id.issue_status);
             status.setText(issue.getKanbancol());
-            TextView type = (TextView) getView().findViewById(R.id.issue_type);
-
+            type = (TextView) getView().findViewById(R.id.issue_type);
             type.setText(issue.getType());
         }
     }
@@ -80,7 +72,6 @@ public class IssueDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_issue_detail, container, false);
     }
 

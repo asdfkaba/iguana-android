@@ -1,6 +1,5 @@
 package iguana.iguana.fragments.issue;
 
-
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -31,10 +30,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class IssueEditFragment extends Fragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
@@ -125,7 +120,6 @@ public class IssueEditFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_issue_edit, container, false);
     }
 
