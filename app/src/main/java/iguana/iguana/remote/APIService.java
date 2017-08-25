@@ -1,0 +1,133 @@
+package iguana.iguana.remote;
+
+import iguana.iguana.models.Comment;
+import iguana.iguana.models.CommentResult;
+import iguana.iguana.models.Issue;
+import iguana.iguana.models.IssueResult;
+import iguana.iguana.models.Project;
+import iguana.iguana.models.ProjectResult;
+import iguana.iguana.models.Timelog;
+import iguana.iguana.models.TimelogResult;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import iguana.iguana.models.Token;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
+
+public interface APIService {
+
+    @GET("api/")
+    Call<Object> checkStatus(
+    );
+
+    @GET("api/projects/{name_short}")
+    Call<Project> getProject(
+            @Path("name_short") String name_short
+    );
+
+    @GET("api/projects/{name_short}/issues/?archived=false")
+    Call<IssueResult> getProjectIssues(
+            @Path("name_short") String name_short,
+            @QueryMap Map<String, String> options
+    );
+
+    @GET("api/projects/{name_short}/issues/{number}")
+    Call<Issue> getProjectSpecificIssue(
+            @Path("name_short") String name_short,
+            @Path("number") long number
+    );
+
+    @GET("api/projects/{name_short}/issues/{issue_number}/timelogs/{timelog_number}")
+    Call<Timelog> getProjectSpecificIssueSpecificTimelog(
+            @Path("name_short") String name_short,
+            @Path("issue_number") long issue_number,
+            @Path("timelog_number") long timelog_number
+    );
+
+    @GET("api/projects/")
+    Call<ProjectResult> getProjects(
+    );
+
+
+    @POST("api/projects/{name_short}/issues/")
+    Call<Issue> createIssue(
+            @Path("name_short") String name_short,
+            @Body HashMap<String, Object> body
+    );
+
+    @PUT("api/projects/{name_short}/issues/{issue_number}/")
+    Call<Issue> editIssue(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Body HashMap<String, Object> body
+    );
+
+    @POST("api/projects/")
+    Call<Project> createProject(
+            @Body HashMap<String, Object> body
+    );
+
+
+    @GET("api/issues/{id}")
+    Call<Issue> getIssue(
+            @Path("id") long id
+    );
+
+    @GET("api/issues/?archived=false")
+    Call<IssueResult> getIssues(
+            @QueryMap Map<String, String> options
+    );
+
+    @GET("api/timelogs/")
+    Call<TimelogResult> getTimelogs(
+            @QueryMap Map<String, String> options
+    );
+
+    @GET("api/projects/{name_short}/issues/{issue_number}/timelogs/")
+    Call<TimelogResult> getTimelogsForIssue(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @QueryMap Map<String, String> options
+    );
+
+    @GET("api/projects/{name_short}/issues/{issue_number}/comments/")
+    Call<CommentResult> getComments(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @QueryMap Map<String, String> options
+    );
+
+    @POST("api/projects/{name_short}/issues/{issue_number}/comments/")
+    Call<Comment> createComment(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Body HashMap<String, String> body
+    );
+
+    @POST("api/projects/{name_short}/issues/{issue_number}/timelogs/")
+    Call<Comment> createTimelog(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Body HashMap<String, String> body
+    );
+
+    @POST("api-token-auth/")
+    Call<Token> getToken(
+            @Body HashMap<String, String> body
+    );
+
+    @POST("delegate/")
+    Call<Token> refreshToken(
+            @Body HashMap<String, String> body
+    );
+
+}

@@ -1,0 +1,50 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.hfad.iguana.MainActivity">
+
+    <item
+        android:id="@+id/menuSort"
+        android:showAsAction="ifRoom"
+        android:title="Order by"
+        android:visible="false">
+        <menu>
+            <group
+                android:id="@+id/sort_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menuSortNumber"
+                    android:title="Sort by number" />
+                <item
+                    android:id="@+id/menuSortPriority"
+                    android:title="Sort by priority" />
+                <item
+                    android:id="@+id/menuSortStorypoints"
+                    android:title="Sort by Storypoints" />
+                <item
+                    android:id="@+id/menuSortTitle"
+                    android:title="Sort by title" />
+                <item
+                    android:id="@+id/menuSortType"
+                    android:title="Sort by type" />
+            </group>
+
+            <item
+                android:id="@+id/menuSortReverse"
+                android:checkable="true"
+                android:title="Reverse" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/add"
+        android:icon="@drawable/ic_add_black_24dp"
+        android:showAsAction="ifRoom"
+        android:visible="false" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings" />
+</menu>
