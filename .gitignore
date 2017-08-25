@@ -6,4 +6,16 @@
 .DS_Store
 /build
 /captures
-.externalNativeBuild
+.externalNativeBuilid
+
+# Intellij
+**/*.iml
+**/.idea/
+
+# Gradle
+**/build/
+**/.gradle/
+
+# Android
+**/*.apk
+**/proguard-rules.pro
