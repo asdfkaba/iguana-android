@@ -1,2 +1,2 @@
 # iguana-android
-android client application for iguana
+android client application for iguana (https://github.com/iguana-project/iguana)
