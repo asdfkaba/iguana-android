@@ -44,50 +44,35 @@ import iguana.iguana.remote.ApiUtils;
 import iguana.iguana.events.rtoken_invalid;
 
 public class MainActivity extends Activity {
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
-        }
-    };
-
-
     private String[] titles;
     private ListView drawerList;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private ArrayAdapter menuAdapter;
     private int currentPosition = 0;
-    private Fragment mContent;
     private APIService mAPIService;
-    private Handler mHandler;
 
-    public String[] get_menu_titles() {
-        return this.titles;
-    }
-    public void set_menu_titles(String [] titles) {
-        this.titles = titles;
-    }
-
-    public void update_menu() {
-        menuAdapter.notifyDataSetChanged();
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            selectItem(position);
+        }
     }
 
-
+    ;
 
     public APIService get_api_service() {
-        System.out.println(this.mAPIService);
         if (this.mAPIService != null) {
             return this.mAPIService;
         } else {
             return ApiUtils.getAPIService("https://localhost", "invalidtoken", this);
         }
     }
+
     public int reinit_api_service() {
-        String token = getSharedPreferences("api" ,Context.MODE_PRIVATE).getString("api_token", null);
+        String token = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_token", null);
         String url = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_url", null);
-        if (token == null && url==null) {
+        if (token == null && url == null) {
             this.mAPIService = null;
             return 1;
         } else if (token == null) {
@@ -96,11 +81,6 @@ public class MainActivity extends Activity {
         }
         this.mAPIService = ApiUtils.getAPIService(url, token, this);
         return 0;
-    }
-
-
-    public void set_menu_item(Integer position) {
-        drawerList.setItemChecked(position, true);
     }
 
 
@@ -129,7 +109,7 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
         titles = getResources().getStringArray(R.array.titles);
-        drawerList = (ListView)findViewById(R.id.drawer);
+        drawerList = (ListView) findViewById(R.id.drawer);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         //Populate the ListView
         menuAdapter = new ArrayAdapter<String>(this,
@@ -145,87 +125,88 @@ public class MainActivity extends Activity {
         }
         //Create the ActionBarDrawerToggle
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-                                                 R.string.open_drawer, R.string.close_drawer) {
-                //Called when a drawer has settled in a completely closed state
-                @Override
-                public void onDrawerClosed(View view) {
-                    super.onDrawerClosed(view);
-                    invalidateOptionsMenu();
-                }
-                //Called when a drawer has settled in a completely open state.
-                @Override
-                public void onDrawerOpened(View drawerView) {
-                    super.onDrawerOpened(drawerView);
-                    invalidateOptionsMenu();
-                }
-            };
+                R.string.open_drawer, R.string.close_drawer) {
+            //Called when a drawer has settled in a completely closed state
+            @Override
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu();
+            }
+
+            //Called when a drawer has settled in a completely open state.
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu();
+            }
+        };
         drawerLayout.setDrawerListener(drawerToggle);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
         getFragmentManager().addOnBackStackChangedListener(
-                                                           new FragmentManager.OnBackStackChangedListener() {
-                                                               public void onBackStackChanged() {
-                                                                   FragmentManager fragMan = getFragmentManager();
-                                                                   if (getFragmentManager().getBackStackEntryCount() == 0) {
-                                                                       currentPosition = 0;
-                                                                       setActionBarTitle(currentPosition);
-                                                                       return;
-                                                                   }
-                                                                   String tag = getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount()-1).getName();
-                                                                   Fragment fragment = fragMan.findFragmentByTag(tag);
-                                                                   menuAdapter.notifyDataSetChanged();
+                new FragmentManager.OnBackStackChangedListener() {
+                    public void onBackStackChanged() {
+                        FragmentManager fragMan = getFragmentManager();
+                        if (getFragmentManager().getBackStackEntryCount() == 0) {
+                            currentPosition = 0;
+                            setActionBarTitle(currentPosition);
+                            return;
+                        }
+                        String tag = getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount() - 1).getName();
+                        Fragment fragment = fragMan.findFragmentByTag(tag);
+                        menuAdapter.notifyDataSetChanged();
 
-                                                                   if (fragment instanceof DashboardFragment) {
-                                                                       currentPosition = 0;
-                                                                       setActionBarTitle(currentPosition);
+                        if (fragment instanceof DashboardFragment) {
+                            currentPosition = 0;
+                            setActionBarTitle(currentPosition);
 
-                                                                   }
-                                                                   if (fragment instanceof ProjectsFragment) {
-                                                                       currentPosition = 1;
-                                                                       setActionBarTitle(currentPosition);
+                        }
+                        if (fragment instanceof ProjectsFragment) {
+                            currentPosition = 1;
+                            setActionBarTitle(currentPosition);
 
-                                                                   }
-                                                                   if (fragment instanceof IssuesFragment) {
-                                                                       currentPosition = 2;
-                                                                       setActionBarTitle(currentPosition);
+                        }
+                        if (fragment instanceof IssuesFragment) {
+                            currentPosition = 2;
+                            setActionBarTitle(currentPosition);
 
-                                                                   }
-                                                                   if (fragment instanceof TimelogsFragment) {
-                                                                       currentPosition = 3;
-                                                                       setActionBarTitle(currentPosition);
+                        }
+                        if (fragment instanceof TimelogsFragment) {
+                            currentPosition = 3;
+                            setActionBarTitle(currentPosition);
 
-                                                                   }
-                                                                   if (fragment instanceof IssueCreateFragment) {
-                                                                       String project = ((IssueCreateFragment) fragment).getArguments().getString("project");
-                                                                       getActionBar().setTitle(project + " - new issue");
-                                                                   }
-                                                                   if (fragment instanceof SettingsFragment) {
-                                                                       getActionBar().setTitle("Settings");
-                                                                   }
+                        }
+                        if (fragment instanceof IssueCreateFragment) {
+                            String project = ((IssueCreateFragment) fragment).getArguments().getString("project");
+                            getActionBar().setTitle(project + " - new issue");
+                        }
+                        if (fragment instanceof SettingsFragment) {
+                            getActionBar().setTitle("Settings");
+                        }
 
-                                                                   if (fragment instanceof ProjectCreateFragment) {
-                                                                       getActionBar().setTitle("New project");
-                                                                   }
+                        if (fragment instanceof ProjectCreateFragment) {
+                            getActionBar().setTitle("New project");
+                        }
 
-                                                                  if (fragment instanceof ProjectBaseFragment) {
-                                                                       Project project = ((ProjectBaseFragment) fragment).getProject();
-                                                                       getActionBar().setTitle(project.getNameShort());
-                                                                   }
+                        if (fragment instanceof ProjectBaseFragment) {
+                            Project project = ((ProjectBaseFragment) fragment).getProject();
+                            getActionBar().setTitle(project.getNameShort());
+                        }
 
-                                                                   if (fragment instanceof IssueBaseFragment) {
-                                                                       System.out.println("WE ARE HERE");
-                                                                       Issue issue = ((IssueBaseFragment) fragment).getIssue();
-                                                                       getActionBar().setTitle(issue.getProjectShortName()+ "-" + issue.getNumber());
-                                                                   }
+                        if (fragment instanceof IssueBaseFragment) {
+                            System.out.println("WE ARE HERE");
+                            Issue issue = ((IssueBaseFragment) fragment).getIssue();
+                            getActionBar().setTitle(issue.getProjectShortName() + "-" + issue.getNumber());
+                        }
 
-                                                                   if (fragment instanceof IssueEditFragment) {
-                                                                       Issue issue = ((IssueEditFragment) fragment).getIssue();
-                                                                       getActionBar().setTitle("Edit " + issue.getProjectShortName()+ "-" + issue.getNumber());
-                                                                   }
-                                                                   drawerList.setItemChecked(currentPosition, true);
-                                                               }
-                                                           }
-                                                           );
+                        if (fragment instanceof IssueEditFragment) {
+                            Issue issue = ((IssueEditFragment) fragment).getIssue();
+                            getActionBar().setTitle("Edit " + issue.getProjectShortName() + "-" + issue.getNumber());
+                        }
+                        drawerList.setItemChecked(currentPosition, true);
+                    }
+                }
+        );
     }
 
     private void selectItem(int position) {
@@ -234,21 +215,21 @@ public class MainActivity extends Activity {
         String tag = "visible_fragment";
         Fragment fragment;
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        switch(position) {
-        case 1:
-            fragment = new ProjectsFragment();
-            break;
-        case 2:
-            Bundle d = new Bundle();
-            d.putString("project", "None");
-            fragment = new IssuesFragment();
-            fragment.setArguments(d);
-            break;
-        case 3:
-            fragment = new TimelogsFragment();
-            break;
-        default:
-            fragment = new DashboardFragment();
+        switch (position) {
+            case 1:
+                fragment = new ProjectsFragment();
+                break;
+            case 2:
+                Bundle d = new Bundle();
+                d.putString("project", "None");
+                fragment = new IssuesFragment();
+                fragment.setArguments(d);
+                break;
+            case 3:
+                fragment = new TimelogsFragment();
+                break;
+            default:
+                fragment = new DashboardFragment();
         }
 
         ft.replace(R.id.content_frame, fragment, tag);
@@ -329,19 +310,18 @@ public class MainActivity extends Activity {
             return true;
         }
         switch (item.getItemId()) {
-            //Code to run when the Create Order item is clicked
 
-        case R.id.action_settings:
-            String tag = "visible_fragment";
-            SettingsFragment fragment = new SettingsFragment();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment, tag);
-            ft.addToBackStack(tag);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
+            case R.id.action_settings:
+                String tag = "visible_fragment";
+                SettingsFragment fragment = new SettingsFragment();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.replace(R.id.content_frame, fragment, tag);
+                ft.addToBackStack(tag);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                ft.commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

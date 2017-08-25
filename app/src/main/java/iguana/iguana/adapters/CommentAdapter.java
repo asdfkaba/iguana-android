@@ -45,9 +45,7 @@ public class CommentAdapter extends BaseAdapter<Comment> {
             TextView text = (TextView) viewHolder.getView(R.id.comment_text);
             DateTime dt = new DateTime(item.getWhen());
             DateTimeFormatter fmt = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
-
             String test = fmt.print(dt);
-
             text.setText(item.getText());
             info.setText(item.getCreator() + " on " + test);
         }
