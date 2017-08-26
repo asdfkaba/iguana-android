@@ -9,5 +9,4 @@ public class rtoken_invalid {
     public rtoken_invalid(String message) {
         this.message = message;
     }
-
 }

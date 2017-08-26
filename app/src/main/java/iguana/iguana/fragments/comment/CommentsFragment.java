@@ -4,10 +4,12 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +22,7 @@ import java.util.Map;
 import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 
+import iguana.iguana.adapters.TimelogAdapter;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
@@ -46,24 +49,26 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
     public void onStart() {
         super.onStart();
 
+        System.out.println("CommentsFragment onStart");
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if(getArguments() != null)
             issue = getArguments().getParcelable("issue");
 
         if (adapter == null) {
-            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
-            adapter = new CommentAdapter(getActivity(), this);
             getComments(current_page, issue.getProjectShortName(), issue.getNumber());
+            adapter = new CommentAdapter(getActivity(), this);
         }
 
+        System.out.println("adapter. "+ adapter);
+
         recyclerView.setAdapter(adapter);
+
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                progress = (ProgressBar) getView().findViewById(R.id.progressBar);
                 progress.setVisibility(View.VISIBLE);
                 adapter.clear();
                 current_page = 1;
@@ -142,5 +147,12 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
                 progress.setVisibility(View.GONE);
             }
         });
+    }
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        recyclerView.setAdapter(new CommentAdapter(getActivity(), this));
+        return rootView;
     }
 }

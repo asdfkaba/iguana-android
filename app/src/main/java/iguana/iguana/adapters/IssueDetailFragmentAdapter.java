@@ -18,7 +18,7 @@ import iguana.iguana.models.Issue;
 
 public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 5;
-    private String tabTitles[] = new String[] { "Detail", "Comments", "Timelogs", "Commits", "Attachments" };
+    private String tabTitles[] = new String[] { "Details", "Comments", "Timelogs", "Commits", "Attachments" };
     private Context context;
     private Issue issue;
 

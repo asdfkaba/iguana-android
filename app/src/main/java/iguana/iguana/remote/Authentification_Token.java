@@ -1,15 +1,10 @@
 package iguana.iguana.remote;
 
 import java.io.IOException;
-import java.lang.reflect.Proxy;
 
-import iguana.iguana.app.MainActivity;
-import iguana.iguana.service.TokenService;
-import okhttp3.Authenticator;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.Route;
 
 public class Authentification_Token implements Interceptor {
 

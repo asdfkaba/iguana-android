@@ -12,7 +12,6 @@ import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.new_token;
 import iguana.iguana.events.rtoken_invalid;
 import iguana.iguana.models.Token;
-import iguana.iguana.service.TokenService;
 import okhttp3.Authenticator;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -64,7 +63,6 @@ public class TokenAuthenticator implements Authenticator {
 
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
-        TokenService service = new TokenService();
         credentials = refresh_token();
         if(credentials == null)
             return null;

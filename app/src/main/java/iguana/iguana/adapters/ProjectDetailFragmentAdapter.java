@@ -17,8 +17,8 @@ import iguana.iguana.models.Project;
  */
 
 public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 3;
-    private String tabTitles[] = new String[] { "Detail", "Issues", "Create" };
+    final int PAGE_COUNT = 5;
+    private String tabTitles[] = new String[] { "Details", "Issues", "Board", "Backlog", "Create" };
     private Context context;
     private Project project;
 
@@ -65,17 +65,19 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
                 d.putString("project", project.getNameShort());
                 frag.setArguments(d);
                 return frag;
-            case 2:
+            case 4:
                 System.out.println("adapter case 3");
                 frag = new IssueCreateFragment();
                 d.putString("project", project.getNameShort());
                 frag.setArguments(d);
                 return frag;
+            default:
+                frag = new ProjectDetailFragment();
+                d.putParcelable("project", project);
+                frag.setArguments(d);
+                return new ProjectDetailFragment();
         }
-        frag = new ProjectDetailFragment();
-        d.putParcelable("project", project);
-        frag.setArguments(d);
-        return new ProjectDetailFragment();
+
     }
 
     @Override

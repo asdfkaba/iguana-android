@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import iguana.iguana.R;
@@ -22,7 +21,6 @@ import iguana.iguana.adapters.IssueAdapter;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
-import iguana.iguana.remote.APIService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,7 +31,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class IssuesFragment extends ApiScrollFragment implements IssueAdapter.OnViewHolderClick<Issue>, IssueAdapter.OnViewHolderLongClick<Issue> {
+public class IssuesFragment
+        extends ApiScrollFragment
+        implements
+        IssueAdapter.OnViewHolderClick<Issue>,
+        IssueAdapter.OnViewHolderLongClick<Issue> {
+
     private IssueAdapter adapter;
     private String project;
     private String adapter_order = "number";

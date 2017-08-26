@@ -9,26 +9,27 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_margin="7dp"
-
-        android:elevation="3dp"
         card_view:cardCornerRadius="3dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="5dp">
 
             <TextView
                 android:id="@+id/comment_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp" />
+                android:textStyle="italic"
+                 />
 
             <TextView
                 android:id="@+id/comment_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/comment_info" />
+                android:layout_below="@+id/comment_info"
+                android:textStyle="bold"/>
 
 
         </RelativeLayout>

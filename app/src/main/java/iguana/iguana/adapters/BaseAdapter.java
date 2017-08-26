@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
-    public List<T> items;
+    protected List<T> items;
     private Context context;
     private OnViewHolderClick<T> listener;
     private OnViewHolderLongClick<T> long_listener;
@@ -34,7 +34,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseAdapter.Vi
     public interface OnViewHolderLongClick<T> {
         boolean onLongClick(View view, int position, T item);
     }
-
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -76,7 +75,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseAdapter.Vi
 
         public void initViewById(int id) {
             View view = (getView() != null ? getView().findViewById(id) : null);
-
             if (view != null)
                 views.put(id, view);
         }
@@ -137,8 +135,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseAdapter.Vi
         this.context = context;
         this.listener = listener;
         this.long_listener = long_listener;
-
-        items = new ArrayList<>();
+        this.items = new ArrayList<>();
     }
 
     @Override

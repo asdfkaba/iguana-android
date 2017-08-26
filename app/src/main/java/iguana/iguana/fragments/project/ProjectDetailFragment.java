@@ -36,12 +36,14 @@ public class ProjectDetailFragment extends Fragment {
     public void onStart() {
         super.onStart();
         View view = getView();
-        if (project == null)
+        if (project == null && getArguments() != null)
             project = getArguments().getParcelable("project");
         title = (TextView) view.findViewById(R.id.project_name);
         description = (TextView) view.findViewById(R.id.project_description);
-        title.setText(project.getName());
-        description.setText(project.getDescription());
+        if (project != null) {
+            title.setText(project.getName());
+            description.setText(project.getDescription());
+        }
     }
 
     @Override

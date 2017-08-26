@@ -4,14 +4,17 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import iguana.iguana.R;
+import iguana.iguana.adapters.CommentAdapter;
 import iguana.iguana.adapters.TimelogAdapter;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Issue;
@@ -38,26 +41,25 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
 
     public void onStart() {
         super.onStart();
+        System.out.println("TimelogsFragment onStart");
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if (getArguments() != null)
             issue = getArguments().getParcelable("issue");
 
         if (adapter == null) {
-            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
-            progress.setVisibility(View.VISIBLE);
-            adapter = new TimelogAdapter(getActivity(), this);
             if (issue == null)
                 getTimelogs(current_page);
             else
                 getTimelogsForIssue(current_page, issue);
+            adapter = new TimelogAdapter(getActivity(), this);
         }
-
         recyclerView.setAdapter(adapter);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                progress.setVisibility(View.VISIBLE);
                 adapter.clear();
                 current_page = 1;
                 progress.setVisibility(View.VISIBLE);
@@ -144,6 +146,12 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
         });
     }
 
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        recyclerView.setAdapter(new TimelogAdapter(getActivity(), this));
+        return rootView;
+    }
 
 
 }

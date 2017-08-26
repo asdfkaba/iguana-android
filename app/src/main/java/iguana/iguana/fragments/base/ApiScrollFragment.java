@@ -37,15 +37,6 @@ public class ApiScrollFragment extends ApiFragment {
     public void onStart() {
         super.onStart();
         current_page = 1;
-        View view = getView();
-        recyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.scrollToPosition(scroll_y);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
-
-
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -63,6 +54,15 @@ public class ApiScrollFragment extends ApiFragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.recyclerview_list, container, false);
+        View rootView =  inflater.inflate(R.layout.recyclerview_list, container, false);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 1);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setHasFixedSize(true);
+        recyclerView.scrollToPosition(scroll_y);
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeToRefresh);
+        progress = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        return rootView;
     }
 }
