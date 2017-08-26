@@ -86,7 +86,7 @@ public class TimelogEditFragment extends ApiFragment {
                                                                            EventBus.getDefault().postSticky(new timelog_changed(response.body()));
                                                                            getFragmentManager().popBackStack();
 
-                                                                       } else { 
+                                                                       } else {
                                                                            try {
                                                                                JSONObject obj = new JSONObject(response.errorBody().string());
                                                                                Iterator<?> keys = obj.keys();
