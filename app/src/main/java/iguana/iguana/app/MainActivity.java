@@ -194,7 +194,6 @@ public class MainActivity extends Activity {
                         }
 
                         if (fragment instanceof IssueBaseFragment) {
-                            System.out.println("WE ARE HERE");
                             Issue issue = ((IssueBaseFragment) fragment).getIssue();
                             getActionBar().setTitle(issue.getProjectShortName() + "-" + issue.getNumber());
                         }

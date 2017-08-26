@@ -36,6 +36,8 @@ public class Issue implements Parcelable{
         mData = in.readInt();
     }
 
+    private boolean isSelected = false;
+
 
     @SerializedName("project")
     @Expose
@@ -259,6 +261,10 @@ public class Issue implements Parcelable{
     }
 
     public String getProjectShortName() { return this.getUrl().split("/")[5];}
+
+    public void toggleSelected() { this.isSelected = !this.isSelected; };
+
+    public boolean isSelected() { return this.isSelected; };
 
 
 }

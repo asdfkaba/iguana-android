@@ -106,14 +106,12 @@ public class SettingsFragment extends Fragment {
                                         ((MainActivity) getActivity()).reinit_api_service();
 
 
-                                        System.out.println(api_url.substring(api_url.length() - 1));
                                         if (!api_url.substring(api_url.length() - 1).equals('/'))
                                             api_url += "/";
 
                                         HashMap body = new HashMap<>();
                                         body.put("username", user.getText().toString());
                                         body.put("password", password.getText().toString());
-                                        System.out.println(api_url);
 
                                         get_api_service().getToken(body).enqueue(new Callback<Token>() {
                                                                                @Override

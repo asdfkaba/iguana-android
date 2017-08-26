@@ -29,15 +29,10 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
     }
 
 
-    private static String makeFragmentName(int viewPagerId, int index) {
-        return "android:switcher:" + viewPagerId + ":" + index;
-    }
-
     @Override
     public int getCount() {
         return PAGE_COUNT;
     }
-
 
     @Override
     public Fragment getItem(int position) {

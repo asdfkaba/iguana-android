@@ -12,7 +12,33 @@ import java.util.List;
  * Created by moritz on 07.05.17.
  */
 
-public class Comment {
+public class Comment implements Parcelable {
+    private int mData;
+
+    public int describeContents() {
+        return 0;
+    }
+
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(mData);
+    }
+    public static final Parcelable.Creator<Comment> CREATOR
+            = new Parcelable.Creator<Comment>() {
+
+        public Comment createFromParcel(Parcel in) {
+            return new Comment(in);
+        }
+
+        public Comment[] newArray(int size) {
+            return new Comment[size];
+        }
+    };
+
+    private Comment(Parcel in) {
+        mData = in.readInt();
+    }
+
+        private boolean isSelected = false;
 
         @SerializedName("issue")
         @Expose
@@ -103,4 +129,16 @@ public class Comment {
             this.attachment = attachment;
         }
 
+        public void toggleSelected() { this.isSelected = !this.isSelected; };
+
+        public boolean isSelected() { return this.isSelected; };
+
+        public String getNameShort() {
+            String [] split = getUrl().split("/");
+            return split[split.length-5];
+        }
+        public int getIssueNumber() {
+            String [] split = getUrl().split("/");
+            return Integer.parseInt(split[split.length-3]);
+        }
 }

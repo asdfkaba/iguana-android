@@ -26,6 +26,8 @@ import android.view.ViewGroup;
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapter;
 import iguana.iguana.common.view.SlidingTabLayout;
+import iguana.iguana.fragments.issue.IssuesFragment;
+import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
 
 /**
@@ -44,20 +46,12 @@ public class ProjectBaseFragment extends Fragment {
         return this.project;
     }
 
-    public void replace_item(Project item) {
-        ProjectsFragment frag = (ProjectsFragment) getChildFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + mViewPager.getCurrentItem());
-        //frag.replace_item(item);
-    }
-
-
     public void onSaveInstanceState(Bundle outState) {
-        System.out.println("onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putParcelable("project", project);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
-        System.out.println("onActivityCreated");
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             project = savedInstanceState.getParcelable("project");

@@ -30,19 +30,9 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
 
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-        // get the tags set by FragmentPagerAdapter
-
-                System.out.println(createdFragment.getTag());
-
-        // ... save the tags somewhere so you can reference them later
         return createdFragment;
     }
 
-    private static String makeFragmentName(int viewPagerId, int index) {
-        if (index == 1)
-            return "issuelist";
-        return "android:switcher:" + viewPagerId + ":" + index;
-    }
 
     @Override
     public int getCount() {
@@ -66,7 +56,6 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
                 frag.setArguments(d);
                 return frag;
             case 4:
-                System.out.println("adapter case 3");
                 frag = new IssueCreateFragment();
                 d.putString("project", project.getNameShort());
                 frag.setArguments(d);

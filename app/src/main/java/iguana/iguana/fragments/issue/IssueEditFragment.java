@@ -1,6 +1,7 @@
 package iguana.iguana.fragments.issue;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import iguana.iguana.app.MainActivity;
+import iguana.iguana.events.issue_changed;
+import iguana.iguana.events.new_token;
+import iguana.iguana.fragments.base.ApiFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
@@ -30,7 +35,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class IssueEditFragment extends Fragment {
+public class IssueEditFragment extends ApiFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
     private CommonMethods common;
@@ -103,7 +108,6 @@ public class IssueEditFragment extends Fragment {
                 String body_type = type.getSelectedItem().toString();
                 String body_due_date = due_date.getText().toString();
 
-
                 HashMap body = new HashMap<>();
                 body.put("title", title.getText().toString());
                 if (body_storypoints.length() > 0)
@@ -113,6 +117,42 @@ public class IssueEditFragment extends Fragment {
                 body.put("type", body_type);
                 if (body_due_date.length() > 0)
                     body.put("due_date", body_due_date);
+
+                get_api_service().editIssue(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Issue>() {
+                                                                         @Override
+                                                                         public void onResponse(Call<Issue> call, Response<Issue> response) {
+                                                                             if (response.isSuccessful()) {
+                                                                                 EventBus.getDefault().postSticky(new issue_changed(response.body()));
+                                                                                 getFragmentManager().popBackStack();
+                                                                             } else {
+                                                                                 try {
+                                                                                     JSONObject obj = new JSONObject(response.errorBody().string());
+                                                                                     Iterator<?> keys = obj.keys();
+                                                                                     while (keys.hasNext()) {
+                                                                                         String key = (String) keys.next();
+                                                                                         if (key.equals("title")) {
+                                                                                             title.setError(obj.get(key).toString());
+                                                                                         } else if (key.equals("description")) {
+                                                                                             description.setError(obj.get(key).toString());
+                                                                                         } else if (key.equals("storypoints")) {
+                                                                                             storypoints.setError(obj.get(key).toString());
+                                                                                         } else if (key.equals("due_date")) {
+                                                                                             due_date.setError(obj.get(key).toString());
+                                                                                         }
+                                                                                     }
+
+                                                                                 } catch (JSONException | IOException e) {
+                                                                                     e.printStackTrace();
+                                                                                 }
+                                                                             }
+                                                                         }
+
+                                                                         @Override
+                                                                         public void onFailure(Call<Issue> call, Throwable t) {
+                                                                             t.printStackTrace();
+                                                                         }
+                                                                     }
+                );
             }
         });
     }

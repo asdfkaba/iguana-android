@@ -1,11 +1,40 @@
 package iguana.iguana.models;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 /**
  * Created by moritz on 07.05.17.
  */
 
-public class Timelog {
+public class Timelog implements Parcelable {
+    private int mData;
+
+    public int describeContents() {
+        return 0;
+    }
+
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(mData);
+    }
+    public static final Parcelable.Creator<Timelog> CREATOR
+            = new Parcelable.Creator<Timelog>() {
+
+        public Timelog createFromParcel(Parcel in) {
+            return new Timelog(in);
+        }
+
+        public Timelog[] newArray(int size) {
+            return new Timelog[size];
+        }
+    };
+
+    private Timelog(Parcel in) {
+        mData = in.readInt();
+    }
+
+    private boolean isSelected = false;
 
         @SerializedName("number")
         @Expose
@@ -25,8 +54,20 @@ public class Timelog {
         @SerializedName("time")
         @Expose
         private String time;
+    @SerializedName("url")
+    @Expose
+    private String url;
 
-        public Integer getNumber() {
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+
+    public Integer getNumber() {
             return number;
         }
 
@@ -73,5 +114,18 @@ public class Timelog {
         public void setTime(String time) {
             this.time = time;
         }
+
+    public void toggleSelected() { this.isSelected = !this.isSelected; };
+
+    public boolean isSelected() { return this.isSelected; };
+
+    public String getNameShort() {
+        String [] split = getUrl().split("/");
+        return split[split.length-5];
+    }
+    public int getIssueNumber() {
+        String [] split = getUrl().split("/");
+        return Integer.parseInt(split[split.length-3]);
+    }
 
     }

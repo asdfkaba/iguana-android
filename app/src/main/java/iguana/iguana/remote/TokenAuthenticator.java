@@ -38,7 +38,6 @@ public class TokenAuthenticator implements Authenticator {
         body.put("api_type", "iguana");
         body.put("grant_type", "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer");
         SharedPreferences.Editor editor = sharedPref.edit();
-        System.out.println("WE are in REFRESH");
         Call<Token> result = ApiUtils.getAPIService(url, null, null).refreshToken(body);
         retrofit2.Response<Token> response = null;
         try {

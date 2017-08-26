@@ -34,6 +34,12 @@ public interface APIService {
             @Path("name_short") String name_short
     );
 
+    @PUT("api/projects/{name_short}/")
+    Call<Project> editProject(
+            @Path("name_short") String name_short,
+            @Body HashMap<String, Object> body
+    );
+
     @GET("api/projects/{name_short}/issues/?archived=false")
     Call<IssueResult> getProjectIssues(
             @Path("name_short") String name_short,
@@ -68,6 +74,23 @@ public interface APIService {
     Call<Issue> editIssue(
             @Path("name_short") String name_short,
             @Path("issue_number") Integer number,
+            @Body HashMap<String, Object> body
+    );
+
+
+    @PUT("api/projects/{name_short}/issues/{issue_number}/comments/{comment_number}/")
+    Call<Comment> editComment(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Path("comment_number") Integer seqnum,
+            @Body HashMap<String, Object> body
+    );
+
+    @PUT("api/projects/{name_short}/issues/{issue_number}/timelogs/{log_number}/")
+    Call<Timelog> editTimelog(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Path("log_number") Integer seqnum,
             @Body HashMap<String, Object> body
     );
 

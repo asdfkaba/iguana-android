@@ -16,8 +16,14 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import iguana.iguana.R;
 import iguana.iguana.adapters.IssueAdapter;
+import iguana.iguana.events.issue_changed;
+import iguana.iguana.events.new_token;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
@@ -41,7 +47,8 @@ public class IssuesFragment
     private String project;
     private String adapter_order = "number";
     private boolean adapter_reverse = false;
-    LinearLayout last_clicked;
+    private Issue selected;
+    private int selected_pos;
 
 
     public IssuesFragment() {}
@@ -60,46 +67,23 @@ public class IssuesFragment
         ft.commit();
     }
 
-    private void do_changes(LinearLayout issue_item, Issue issue) {
-        final Issue item = issue;
-        issue_item.setRotation(2.0f);
-        ImageButton edit = (ImageButton) issue_item.findViewById(R.id.edit);
-        edit.setVisibility(View.VISIBLE);
-        edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentManager frag;
-                frag = ((Activity)v.getContext()).getFragmentManager();
-                IssueEditFragment fragment= new IssueEditFragment();
-                Bundle d = new Bundle();
-                d.putParcelable("issue", item);
-                fragment.setArguments(d);
-                FragmentTransaction ft = frag.beginTransaction();
-                ft.replace(R.id.content_frame, fragment, "issue_edit");
-                ft.addToBackStack("issue_edit");
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
-            }
-        });
-    }
-
-    private void undo_changes(LinearLayout issue_item) {
-        issue_item.setRotation(0.0f);
-        ImageButton edit = (ImageButton) issue_item.findViewById(R.id.edit);
-        edit.setOnClickListener(null);
-        edit.setVisibility(View.GONE);
-    }
-
     public boolean onLongClick(View view, int position, Issue item) {
-        if (last_clicked != null ) {
-            undo_changes(last_clicked);
-        }
-        if (last_clicked != view) {
-            last_clicked = (LinearLayout) view;
-            do_changes(last_clicked, item);
+        if (selected == null ) {
+            selected = item;
+            selected_pos = position;
+            item.toggleSelected();
+        } else if (selected == item) {
+            item.toggleSelected();
+            selected = null;
+            selected_pos = -1;
         } else {
-            last_clicked = null;
+            selected.toggleSelected();
+            adapter.notifyItemChanged(selected_pos);
+            item.toggleSelected();
+            selected = item;
+            selected_pos = position;
         }
+        adapter.notifyItemChanged(position);
         return true;
     }
 
@@ -115,15 +99,25 @@ public class IssuesFragment
         if (savedInstanceState != null) {
                 adapter_order  = savedInstanceState.getString("adapter_order");
                 adapter_reverse = savedInstanceState.getBoolean("adapter_reverse");
-            }
+        }
     }
 
-    public void replace_item(Issue item) {
-        adapter.replace_item(item);
+    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    public void onMessageEvent(issue_changed event) {
+        if (adapter != null)
+            adapter.replace_item(event.getIssue());
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
+
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
@@ -317,7 +311,6 @@ public class IssuesFragment
                             progress.setVisibility(View.GONE);
                             adapter.do_notify();
                             recyclerView.setVisibility(View.VISIBLE);
-
                         }
 
                     }

@@ -24,13 +24,11 @@ public class IssueBaseFragment extends Fragment {
 
     public void onSaveInstanceState(Bundle outState) {
         System.out.println("onSaveInstanceState");
-        super.onSaveInstanceState(outState);
         if (issue != null)
             outState.putParcelable("issue", issue);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
-        System.out.println("onActivityCreated");
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             issue = savedInstanceState.getParcelable("issue");

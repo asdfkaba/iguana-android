@@ -14,6 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +27,8 @@ import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 
 import iguana.iguana.adapters.TimelogAdapter;
+import iguana.iguana.events.comment_changed;
+import iguana.iguana.events.issue_changed;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
@@ -33,23 +39,60 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class CommentsFragment extends ApiScrollFragment implements CommentAdapter.OnViewHolderClick<Comment>{
+public class CommentsFragment extends ApiScrollFragment implements CommentAdapter.OnViewHolderClick<Comment>, CommentAdapter.OnViewHolderLongClick<Comment>{
     private List<Comment> comments;
     private TextView mResponseTv;
     private Context context;
     private CommentAdapter adapter;
     private Issue issue;
+    private Comment selected;
+    private int selected_pos;
 
 
     public CommentsFragment() {}
 
+    public boolean onLongClick(View view, int position, Comment item) {
+        if (!item.getCreator().equals(getActivity().getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null)))
+            return false;
+
+        if (selected == null ) {
+            selected = item;
+            selected_pos = position;
+            item.toggleSelected();
+        } else if (selected == item) {
+            item.toggleSelected();
+            selected = null;
+            selected_pos = -1;
+        } else {
+            selected.toggleSelected();
+            adapter.notifyItemChanged(selected_pos);
+            item.toggleSelected();
+            selected = item;
+            selected_pos = position;
+        }
+        adapter.notifyItemChanged(position);
+        return true;
+    }
+
     @Override
     public void onClick(View view, int position, Comment item) {}
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    public void onMessageEvent(comment_changed event) {
+        if (adapter != null)
+            adapter.replace_item(event.getComment());
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
 
-        System.out.println("CommentsFragment onStart");
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if(getArguments() != null)
@@ -58,10 +101,8 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
         if (adapter == null) {
             progress.setVisibility(View.VISIBLE);
             getComments(current_page, issue.getProjectShortName(), issue.getNumber());
-            adapter = new CommentAdapter(getActivity(), this);
+            adapter = new CommentAdapter(getActivity(), this, this);
         }
-
-        System.out.println("adapter. "+ adapter);
 
         recyclerView.setAdapter(adapter);
 
@@ -102,7 +143,6 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        System.out.println("onSaveInstanceState");
         super.onSaveInstanceState(outState);
         if (issue != null)
             outState.putParcelable("issue", issue);
@@ -110,7 +150,6 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
-        System.out.println("onActivityCreated");
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             issue = savedInstanceState.getParcelable("issue");
@@ -152,7 +191,9 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        recyclerView.setAdapter(new CommentAdapter(getActivity(), this));
+        recyclerView.setAdapter(new CommentAdapter(getActivity(), this, this));
         return rootView;
     }
+
+
 }

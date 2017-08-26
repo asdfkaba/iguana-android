@@ -38,6 +38,8 @@ public class Project implements Parcelable {
         mData = in.readInt();
     }
 
+    private boolean isSelected;
+
     @SerializedName("manager")
     @Expose
     private List<String> manager = null;
@@ -170,4 +172,9 @@ public class Project implements Parcelable {
     public void setCurrentsprint(Integer currentsprint) {
         this.currentsprint = currentsprint;
     }
+
+    public void toggleSelected() { this.isSelected = !this.isSelected; };
+
+    public boolean isSelected() { return this.isSelected; };
+
 }

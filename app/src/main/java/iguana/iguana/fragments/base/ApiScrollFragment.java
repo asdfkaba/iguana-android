@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import org.greenrobot.eventbus.EventBus;
+
 import iguana.iguana.R;
 
 public class ApiScrollFragment extends ApiFragment {
@@ -38,6 +40,8 @@ public class ApiScrollFragment extends ApiFragment {
         super.onStart();
         current_page = 1;
     }
+
+
 
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

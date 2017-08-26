@@ -14,8 +14,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectAdapter;
+import iguana.iguana.events.issue_changed;
+import iguana.iguana.events.project_changed;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
@@ -28,13 +34,37 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapter.OnViewHolderClick<Project>{
+public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapter.OnViewHolderClick<Project>, ProjectAdapter.OnViewHolderLongClick<Project>{
     private TextView mResponseTv;
     private Context context;
     private ProjectAdapter adapter;
+    private Project selected;
+    private int selected_pos;
 
 
     public ProjectsFragment() {}
+
+    @Override
+    public boolean onLongClick(View view, int position, Project item) {
+        if (!item.getManager().contains(getActivity().getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null)))
+            return false;
+        if (selected == null ) {
+            selected = item;
+            selected_pos = position;
+            item.toggleSelected();
+        } else if (selected == item) {
+            item.toggleSelected();
+            selected = null;
+            selected_pos = -1;
+        } else {
+            selected.toggleSelected();
+            adapter.notifyItemChanged(selected_pos);
+            item.toggleSelected();
+            selected = item;
+            selected_pos = position;
+        }
+        adapter.notifyItemChanged(position);
+        return true;    }
 
     @Override
     public void onClick(View view, int position, Project item) {
@@ -55,9 +85,21 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    public void onMessageEvent(project_changed event) {
+        System.out.println("event");
+        if (adapter != null)
+            adapter.replace_item(event.getProject());
+    }
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
@@ -65,7 +107,7 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
             progress = (ProgressBar) getView().findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
             getProjects(current_page);
-            adapter = new ProjectAdapter(getActivity(), this);
+            adapter = new ProjectAdapter(getActivity(), this, this);
         }
 
         recyclerView.setAdapter(adapter);
@@ -135,5 +177,6 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
             }
         });
     }
+
 
 }
