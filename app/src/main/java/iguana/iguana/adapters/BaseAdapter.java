@@ -145,13 +145,11 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter<BaseAdapter.Vi
 
     @Override
     public void onBindViewHolder(BaseAdapter.ViewHolder holder, int position)  {
-
         try {
             bindView(getItem(position), holder);
         } catch (ParseException e) {
                 e.printStackTrace();
             }
-
     }
 
     @Override

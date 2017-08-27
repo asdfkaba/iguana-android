@@ -14,22 +14,38 @@
         tools:layout_editor_absoluteY="0dp"
         tools:layout_editor_absoluteX="0dp">
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:minHeight="50dp"
+            android:minWidth="50dp"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            />
+
 
 
         <EditText
             android:id="@+id/title"
             android:hint="Title"
+            android:inputType="textNoSuggestions"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="8dp"
             android:layout_marginRight="16dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginEnd="8dp" />
+            app:layout_constraintRight_toRightOf="parent" />
 
         <EditText
             android:id="@+id/description"
@@ -37,14 +53,25 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             app:layout_constraintTop_toBottomOf="@+id/title"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginTop="8dp"
             android:layout_marginRight="16dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginEnd="8dp" />
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <iguana.iguana.common.view.MultipleSpinner
+            android:id="@+id/assignees"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="Assignee"
+            app:layout_constraintTop_toBottomOf="@+id/description"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginRight="16dp"
+
+            app:layout_constraintRight_toRightOf="parent" />
 
         <Spinner
             android:id="@+id/priority"
@@ -53,7 +80,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/description"
+            app:layout_constraintTop_toBottomOf="@+id/assignees"
             android:layout_marginLeft="16dp"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginRight="16dp"
@@ -72,7 +99,9 @@
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginRight="16dp"
             android:entries="@array/types"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.0" />
+
 
         <EditText
             android:id="@+id/storypoints"

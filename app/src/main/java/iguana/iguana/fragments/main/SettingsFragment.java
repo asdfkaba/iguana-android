@@ -29,6 +29,7 @@ import retrofit2.Response;
 
 public class SettingsFragment extends Fragment {
     private APIService s;
+    private EditText url, user, password;
     public SettingsFragment() {
         // Required empty public constructor
     }
@@ -134,16 +135,10 @@ public class SettingsFragment extends Fragment {
 
 
                                                                                    } else {
-
-                                                                                       try {
-                                                                                           System.out.println(response.errorBody().string());
-
-                                                                                       } catch (IOException e) {
-                                                                                           e.printStackTrace();
-                                                                                       }
-                                                                                       Toast.makeText(getActivity(), "A problem occured, you can try again.\n The credentials you provided weren't correct for this url", Toast.LENGTH_SHORT).show();
-
-
+                                                                                       EditText user = (EditText) getView().findViewById(R.id.user);
+                                                                                       user.setError("Wrong username or password for given url.");
+                                                                                       EditText password = (EditText) getView().findViewById(R.id.password);
+                                                                                       password.setError("Wrong username or password for given url.");
                                                                                    }
                                                                                }
 

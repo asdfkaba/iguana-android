@@ -59,7 +59,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    ;
+
+
+    public String get_user() {
+        return getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_token", null);
+    }
+
 
     public APIService get_api_service() {
         if (this.mAPIService != null) {

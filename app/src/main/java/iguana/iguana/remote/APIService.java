@@ -15,6 +15,7 @@ import java.util.Map;
 import iguana.iguana.models.Token;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -54,6 +55,13 @@ public interface APIService {
 
     @GET("api/projects/{name_short}/issues/{issue_number}/timelogs/{timelog_number}")
     Call<Timelog> getProjectSpecificIssueSpecificTimelog(
+            @Path("name_short") String name_short,
+            @Path("issue_number") long issue_number,
+            @Path("timelog_number") long timelog_number
+    );
+
+    @DELETE("api/projects/{name_short}/issues/{issue_number}/timelogs/{timelog_number}/")
+    Call<Object> deleteTimelog(
             @Path("name_short") String name_short,
             @Path("issue_number") long issue_number,
             @Path("timelog_number") long timelog_number
@@ -137,7 +145,7 @@ public interface APIService {
     );
 
     @POST("api/projects/{name_short}/issues/{issue_number}/timelogs/")
-    Call<Comment> createTimelog(
+    Call<Timelog> createTimelog(
             @Path("name_short") String name_short,
             @Path("issue_number") Integer number,
             @Body HashMap<String, String> body

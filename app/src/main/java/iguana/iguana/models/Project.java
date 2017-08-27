@@ -9,6 +9,8 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Project implements Parcelable {
@@ -177,4 +179,13 @@ public class Project implements Parcelable {
 
     public boolean isSelected() { return this.isSelected; };
 
+    public List<String> getMembers() {
+        Collection<String> dev = getDeveloper();
+        Collection<String> man = getManager();
+        for (String x : man) {
+            if (!dev.contains(x))
+                dev.add(x);
+        }
+       return new ArrayList<String>(dev);
+    }
 }

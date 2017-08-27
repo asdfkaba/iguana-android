@@ -9,8 +9,12 @@ import iguana.iguana.models.Timelog;
 
 public class timelog_changed {
     public final Timelog timelog;
+    public final boolean delete;
     public Timelog getTimelog(){return this.timelog;}
-    public timelog_changed(Timelog timelog) {
+    public boolean deleted(){return this.delete;}
+
+    public timelog_changed(Timelog timelog, boolean delete) {
         this.timelog = timelog;
+        this.delete = delete;
     }
 }

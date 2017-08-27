@@ -48,13 +48,15 @@ public class ProjectAdapter extends BaseAdapter<Project> {
             System.out.println("REPLACE");
             items.set(idx, item);
             notifyItemChanged(idx);
+        } else {
+            items.add(0, item);
+            notifyItemInserted(0);
         }
     }
 
     @Override
     protected void bindView(Project item, BaseAdapter.ViewHolder viewHolder) {
         if (item != null) {
-            System.out.println(item.getNameShort());
             TextView name = (TextView) viewHolder.getView(R.id.comment_info);
             TextView created_at = (TextView) viewHolder.getView(R.id.created_at);
             TextView members = (TextView) viewHolder.getView(R.id.members);

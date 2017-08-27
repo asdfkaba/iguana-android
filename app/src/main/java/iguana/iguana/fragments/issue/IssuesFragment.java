@@ -11,30 +11,22 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
+
 import iguana.iguana.R;
 import iguana.iguana.adapters.IssueAdapter;
+import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.issue_changed;
-import iguana.iguana.events.new_token;
 import iguana.iguana.fragments.base.ApiScrollFragment;
 import iguana.iguana.models.Issue;
-import iguana.iguana.models.IssueResult;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import iguana.iguana.models.Project;
+import iguana.iguana.remote.apicalls.IssueCalls;
 
 
 public class IssuesFragment
@@ -44,12 +36,13 @@ public class IssuesFragment
         IssueAdapter.OnViewHolderLongClick<Issue> {
 
     private IssueAdapter adapter;
-    private String project;
+    private Project project;
     private String adapter_order = "number";
     private boolean adapter_reverse = false;
     private Issue selected;
     private int selected_pos;
-
+    private IssueCalls api;
+    private HashMap filters;
 
     public IssuesFragment() {}
 
@@ -91,6 +84,8 @@ public class IssuesFragment
         super.onSaveInstanceState(outState);
         outState.putString("adapter_order", adapter_order);
         outState.putBoolean("adapter_reverse", adapter_reverse);
+        outState.putParcelable("project", project);
+
     }
 
 
@@ -99,13 +94,14 @@ public class IssuesFragment
         if (savedInstanceState != null) {
                 adapter_order  = savedInstanceState.getString("adapter_order");
                 adapter_reverse = savedInstanceState.getBoolean("adapter_reverse");
+                project  = savedInstanceState.getParcelable("project");
         }
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(issue_changed event) {
         if (adapter != null)
-            adapter.replace_item(event.getIssue());
+            adapter.replace_item(event.getIssue(), ((MainActivity) getActivity()).get_user());
     }
 
     @Override
@@ -117,25 +113,26 @@ public class IssuesFragment
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-
+        View view = getView();
+        api = new IssueCalls(view);
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if (project == null)
-            project = getArguments().getString("project");
+            project = getArguments().getParcelable("project");
 
         if (adapter == null) {
-            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
+            progress = (ProgressBar) view.findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
             adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project : ""), false);
             adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project : ""), "number");
-            adapter = new IssueAdapter(getActivity(), this, this);
+            adapter = new IssueAdapter(getActivity(), this, this, project);
             adapter.set_order(adapter_order);
             adapter.set_reverse(adapter_reverse);
-            if (project.equals("None"))
-                getIssues(current_page);
+            if (project == null)
+                api.getIssues(current_page, adapter);
             else
-                getProjectIssues(project, current_page);
+                api.getProjectIssues(project.getNameShort(), current_page, adapter);
         }
 
         recyclerView.setAdapter(adapter);
@@ -147,10 +144,10 @@ public class IssuesFragment
                 progress.setVisibility(View.VISIBLE);
                 adapter.clear();
                 current_page = 1;
-                if (project.equals("None"))
-                    getIssues(current_page);
+                if (project == null)
+                    api.getIssues(current_page, adapter);
                 else
-                    getProjectIssues(project, current_page);
+                    api.getProjectIssues(project.getNameShort(), current_page, adapter);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -181,7 +178,7 @@ public class IssuesFragment
 
         }
         // in project context show add icon
-        if (!project.equals("None"))
+        if (project != null)
             menu.findItem(R.id.add).setVisible(true);
 
 
@@ -198,7 +195,7 @@ public class IssuesFragment
             case R.id.add:
                 IssueCreateFragment fragment= new IssueCreateFragment();
                 Bundle d = new Bundle();
-                d.putString("project", project);
+                d.putParcelable("project", project);
                 fragment.setArguments(d);
                 FragmentTransaction ft = getParentFragment().getFragmentManager().beginTransaction();
                 ft.replace(R.id.content_frame, fragment, "visible_fragment");
@@ -259,69 +256,4 @@ public class IssuesFragment
         return true;
     }
 
-    public void getIssues(Integer page) {
-        Map options = new HashMap<String,String>();
-        options.put("page", page);
-
-        get_api_service().getIssues(options).enqueue(new Callback<IssueResult>() {
-            @Override
-            public void onResponse(Call<IssueResult> call, Response<IssueResult> response) {
-                if(response.isSuccessful()) {
-                    adapter.addAll(response.body().getResults());
-                    if (response.body().getNext() != null) {
-                        getIssues(++current_page);
-                    } else {
-                        progress.setVisibility(View.GONE);
-                        adapter.do_notify();
-                        recyclerView.setVisibility(View.VISIBLE);
-
-                    }
-                }
-                else {
-                    try {
-                        System.out.println(response.errorBody().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<IssueResult> call, Throwable t) {
-                Toast.makeText(getActivity(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
-                progress.setVisibility(View.GONE);
-                t.printStackTrace();
-            }
-        });
-    }
-
-        public void getProjectIssues(String project, Integer page) {
-            Map options = new HashMap<String,String>();
-            options.put("page", page);
-
-            get_api_service().getProjectIssues(project,options).enqueue(new Callback<IssueResult>() {
-                @Override
-                public void onResponse(Call<IssueResult> call, Response<IssueResult> response) {
-                    if(response.isSuccessful()) {
-                        adapter.addAll(response.body().getResults());
-
-                        if (response.body().getNext() != null) {
-                            getProjectIssues(response.body().getResults().get(0).getProjectShortName(), ++current_page);
-                        } else {
-                            progress.setVisibility(View.GONE);
-                            adapter.do_notify();
-                            recyclerView.setVisibility(View.VISIBLE);
-                        }
-
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<IssueResult> call, Throwable t) {
-                    Toast.makeText(getActivity(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_LONG).show();
-                    progress.setVisibility(View.GONE);
-                }
-            });
-        }
 }

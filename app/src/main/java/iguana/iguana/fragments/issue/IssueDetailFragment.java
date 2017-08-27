@@ -56,16 +56,6 @@ public class IssueDetailFragment extends Fragment {
         if (savedInstanceState != null){
             if (issue == null)
                 issue = savedInstanceState.getParcelable("issue");
-
-            title = (TextView) getView().findViewById(R.id.issue_title);
-            title.setText(issue.getTitle());
-            title.append(" ("+ issue.getProject()+"-"+issue.getNumber()+")");
-            desc = (TextView) getView().findViewById(R.id.issue_description);
-            desc.setText(issue.getDescription());
-            status = (TextView) getView().findViewById(R.id.issue_status);
-            status.setText(issue.getKanbancol());
-            type = (TextView) getView().findViewById(R.id.issue_type);
-            type.setText(issue.getType());
         }
     }
 

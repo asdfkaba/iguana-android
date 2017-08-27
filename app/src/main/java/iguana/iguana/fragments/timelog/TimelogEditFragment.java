@@ -1,7 +1,9 @@
 package iguana.iguana.fragments.timelog;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +20,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import iguana.iguana.R;
+import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.timelog_changed;
 import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.main.ConfirmFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
+import iguana.iguana.remote.apicalls.TimelogCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,11 +38,11 @@ import retrofit2.Response;
 public class TimelogEditFragment extends ApiFragment {
     private EditText time;
     private Timelog timelog;
+    private TimelogCalls api;
 
     public TimelogEditFragment() {
         // Required empty public constructor
     }
-
 
 
     @Override
@@ -62,9 +67,9 @@ public class TimelogEditFragment extends ApiFragment {
     @Override
     public void onStart() {
         super.onStart();
-
         View view = getView();
-        Button button = (Button) view.findViewById(R.id.send);
+        api = new TimelogCalls(view);
+        Button edit = (Button) view.findViewById(R.id.send);
         time = (EditText) view.findViewById(R.id.time);
 
         if (getArguments() != null)
@@ -72,46 +77,41 @@ public class TimelogEditFragment extends ApiFragment {
 
         time.setText(timelog.getTime());
 
-
-        button.setOnClickListener(new View.OnClickListener() {
+        edit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String body_text = time.getText().toString();
                 HashMap body = new HashMap<>();
                 body.put("time", time.getText().toString());
+                api.editTimelog(timelog, body);
+            }
+        });
 
-                get_api_service().editTimelog(timelog.getNameShort(), timelog.getIssueNumber(), timelog.getNumber(), body).enqueue(new Callback<Timelog>() {
-                                                                   @Override
-                                                                   public void onResponse(Call<Timelog> call, Response<Timelog> response) {
-                                                                       if (response.isSuccessful()) {
-                                                                           EventBus.getDefault().postSticky(new timelog_changed(response.body()));
-                                                                           getFragmentManager().popBackStack();
+        Button delete = (Button) view.findViewById(R.id.delete);
 
-                                                                       } else {
-                                                                           try {
-                                                                               JSONObject obj = new JSONObject(response.errorBody().string());
-                                                                               Iterator<?> keys = obj.keys();
-                                                                               while (keys.hasNext()) {
-                                                                                   String key = (String) keys.next();
-                                                                                   if (key.equals("time")) {
-                                                                                       time.setError(obj.get(key).toString());
-                                                                                   }
-                                                                               }
+        final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        getView().findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                        api.deleteTimelog(timelog);
+                        break;
 
-                                                                           } catch (JSONException | IOException e) {
-                                                                               e.printStackTrace();
-                                                                           }
-                                                                       }
-                                                                   }
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
 
-                                                                   @Override
-                                                                   public void onFailure(Call<Timelog> call, Throwable t) {
-                                                                       t.printStackTrace();
-                                                                   }
-                                                               }
-                    );
+        delete.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AlertDialog.Builder ab = new AlertDialog.Builder(getActivity());
+                ab.setMessage("Are you sure you want  to delete this object?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
             }
         });
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

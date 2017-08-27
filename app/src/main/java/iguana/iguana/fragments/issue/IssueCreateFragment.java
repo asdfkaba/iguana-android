@@ -17,14 +17,18 @@ import org.json.JSONObject;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
+import iguana.iguana.common.view.MultipleSpinner;
 import iguana.iguana.fragments.base.ApiFragment;
 import iguana.iguana.models.Issue;
+import iguana.iguana.models.Project;
 import iguana.iguana.remote.APIService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import iguana.iguana.remote.apicalls.IssueCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,9 +36,11 @@ import retrofit2.Response;
 public class IssueCreateFragment extends ApiFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
-    private String project;
-    private APIService mAPIService;
+    private MultipleSpinner assignees;
     private CommonMethods common;
+    private IssueCalls api;
+    private Project project;
+
 
     public IssueCreateFragment() {}
 
@@ -49,6 +55,7 @@ public class IssueCreateFragment extends ApiFragment {
             outState.putString("storypoints", storypoints.getText().toString());
         if (description != null)
             outState.putString("description", description.getText().toString());
+        outState.putParcelable("project", project);
     }
 
     @Override
@@ -63,6 +70,8 @@ public class IssueCreateFragment extends ApiFragment {
                 storypoints.setText(savedInstanceState.getString("storypoints"));
             if (priority != null)
                 priority.setSelection(common.getIndex(priority, savedInstanceState.getString("priority")));
+            if (project == null)
+                project = savedInstanceState.getParcelable("project");
         }
     }
 
@@ -76,8 +85,10 @@ public class IssueCreateFragment extends ApiFragment {
         super.onStart();
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
         common = new CommonMethods();
-        mAPIService = ((MainActivity) getActivity()).get_api_service();
         View view = getView();
+        api = new IssueCalls(view);
+        if (project == null)
+            project = getArguments().getParcelable("project");
         Button button = (Button) view.findViewById(R.id.send);
         title = (EditText) view.findViewById(R.id.title);
         description = (EditText) view.findViewById(R.id.description);
@@ -85,9 +96,11 @@ public class IssueCreateFragment extends ApiFragment {
 
         priority = (Spinner) view.findViewById(R.id.priority);
         type = (Spinner) view.findViewById(R.id.type);
+        assignees = (MultipleSpinner) view.findViewById(R.id.assignees);
+        assignees.setItems(project.getMembers());
+        assignees.setSelection(new ArrayList<String>());
 
         storypoints = (EditText) view.findViewById(R.id.storypoints);
-        project = getArguments().getString("project");
         priority.setSelection(2);
         priority.setPrompt("Choose priority");
         type.setPrompt("Choose type");
@@ -101,7 +114,6 @@ public class IssueCreateFragment extends ApiFragment {
                 String body_type = type.getSelectedItem().toString();
                 String body_due_date = due_date.getText().toString();
 
-
                 HashMap body = new HashMap<>();
                 body.put("title", title.getText().toString());
                 if (body_storypoints.length()>0)
@@ -111,55 +123,9 @@ public class IssueCreateFragment extends ApiFragment {
                 body.put("type", body_type);
                 if (body_due_date.length()>0)
                     body.put("due_date", body_due_date);
+                body.put("assignee", assignees.getSelectedStrings().toArray());
 
-
-                get_api_service().createIssue(project, body).enqueue(new Callback<Issue>() {
-                                                                   @Override
-                                                                   public void onResponse(Call<Issue> call, Response<Issue> response) {
-                                                                       if (response.isSuccessful()) {
-                                                                           IssueBaseFragment fragment= new IssueBaseFragment();
-                                                                           Bundle d = new Bundle();
-                                                                           d.putParcelable("issue", response.body());
-                                                                           fragment.setArguments(d);
-                                                                           d.putString("project", project);
-                                                                           fragment.setArguments(d);
-                                                                           FragmentTransaction ft;
-                                                                           if (getParentFragment() == null)
-                                                                                ft = getFragmentManager().beginTransaction();
-                                                                           else
-                                                                                ft = getParentFragment().getFragmentManager().beginTransaction();
-                                                                           ft.addToBackStack(null);
-                                                                           ft.replace(R.id.content_frame, fragment, "visible_fragment");
-                                                                           ft.commit();
-                                                                       } else {
-                                                                           try {
-                                                                               JSONObject obj = new JSONObject(response.errorBody().string());
-                                                                               Iterator<?> keys = obj.keys();
-                                                                               while (keys.hasNext()) {
-                                                                                   String key = (String) keys.next();
-                                                                                   if (key.equals("title")) {
-                                                                                       title.setError(obj.get(key).toString());
-                                                                                   } else if (key.equals("description")) {
-                                                                                       description.setError(obj.get(key).toString());
-                                                                                   } else if (key.equals("storypoints")) {
-                                                                                       storypoints.setError(obj.get(key).toString());
-                                                                                   } else if (key.equals("due_date")) {
-                                                                                       due_date.setError(obj.get(key).toString());
-                                                                                   }
-                                                                               }
-
-                                                                           } catch (JSONException | IOException e) {
-                                                                               e.printStackTrace();
-                                                                           }
-                                                                       }
-                                                                   }
-
-                                                                   @Override
-                                                                   public void onFailure(Call<Issue> call, Throwable t) {
-                                                                       t.printStackTrace();
-                                                                   }
-                                                               }
-                    );
+                api.createIssue(project.getNameShort(), body);
             }
         });
     }

@@ -51,6 +51,9 @@ public class Issue implements Parcelable{
     @SerializedName("assignee")
     @Expose
     private List<String> assignee = null;
+    @SerializedName("project_members")
+    @Expose
+    private List<String> project_members = null;
     @SerializedName("participant")
     @Expose
     private List<String> participant = null;
@@ -130,6 +133,14 @@ public class Issue implements Parcelable{
 
     public void setAssignee(List<String> assignee) {
         this.assignee = assignee;
+    }
+
+    public List<String> getProjectMembers() {
+        return project_members;
+    }
+
+    public void setProjectMembers(List<String> project_members) {
+        this.project_members = project_members;
     }
 
     public List<String> getParticipant() {

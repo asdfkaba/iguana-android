@@ -31,6 +31,7 @@ import iguana.iguana.models.TimelogResult;
 import java.util.HashMap;
 import java.util.Map;
 
+import iguana.iguana.remote.apicalls.TimelogCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,6 +42,7 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     private Issue issue;
     private Timelog selected;
     private int selected_pos;
+    private TimelogCalls api;
 
     public TimelogsFragment() {}
 
@@ -73,7 +75,7 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(timelog_changed event) {
         if (adapter != null)
-            adapter.replace_item(event.getTimelog());
+            adapter.replace_item(event.getTimelog(), event.deleted());
     }
 
     @Override
@@ -85,17 +87,21 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        View view = getView();
+        api = new TimelogCalls(view);
+
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if (getArguments() != null)
             issue = getArguments().getParcelable("issue");
 
         if (adapter == null) {
-            if (issue == null)
-                getTimelogs(current_page);
-            else
-                getTimelogsForIssue(current_page, issue);
             adapter = new TimelogAdapter(getActivity(), this, this);
+            progress.setVisibility(View.VISIBLE);
+            if (issue == null)
+                api.getTimelogs(current_page, adapter);
+            else
+                api.getTimelogsForIssue(current_page, issue, adapter);
         }
         recyclerView.setAdapter(adapter);
 
@@ -107,9 +113,9 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
                 current_page = 1;
                 progress.setVisibility(View.VISIBLE);
                 if (issue == null)
-                    getTimelogs(current_page);
+                    api.getTimelogs(current_page, adapter);
                 else
-                    getTimelogsForIssue(current_page, issue);
+                    api.getTimelogsForIssue(current_page, issue, adapter);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -139,55 +145,7 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
         }
     }
 
-    public void getTimelogs(Integer page) {
-        Map options = new HashMap<String, String>();
-        options.put("page", page);
-        get_api_service().getTimelogs(options).enqueue(new Callback<TimelogResult>() {
-            @Override
-            public void onResponse(Call<TimelogResult> call, Response<TimelogResult> response) {
-                if (response.isSuccessful()) {
-                    adapter.addAll(response.body().getResults());
-                    if (response.body().getNext() != null) {
-                        getTimelogs(++current_page);
-                    } else {
-                        progress.setVisibility(View.GONE);
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
 
-            @Override
-            public void onFailure(Call<TimelogResult> call, Throwable t) {
-                Toast.makeText(getActivity(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
-                progress.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    public void getTimelogsForIssue(Integer page, Issue issue) {
-        Map options = new HashMap<String, String>();
-        options.put("page", page);
-        get_api_service().getTimelogsForIssue(issue.getProjectShortName(), issue.getNumber(), options).enqueue(new Callback<TimelogResult>() {
-            @Override
-            public void onResponse(Call<TimelogResult> call, Response<TimelogResult> response) {
-                if (response.isSuccessful()) {
-                    adapter.addAll(response.body().getResults());
-                    if (response.body().getNext() != null) {
-                        getTimelogs(++current_page);
-                    } else {
-                        progress.setVisibility(View.GONE);
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TimelogResult> call, Throwable t) {
-                Toast.makeText(getActivity(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
-                progress.setVisibility(View.GONE);
-            }
-        });
-    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

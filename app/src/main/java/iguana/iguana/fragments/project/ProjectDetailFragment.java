@@ -25,12 +25,9 @@ import retrofit2.Response;
  */
 public class ProjectDetailFragment extends Fragment {
     private TextView title, description;
-    private ListView drawer;
     private Project project;
 
-    public ProjectDetailFragment() {
-        // Required empty public constructor
-    }
+    public ProjectDetailFragment() {    }
 
     @Override
     public void onStart() {
@@ -65,8 +62,6 @@ public class ProjectDetailFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null){
-            title = (TextView) getActivity().findViewById(R.id.project_name);
-            description = (TextView) getActivity().findViewById(R.id.project_description);
             if(project == null)
                 project = savedInstanceState.getParcelable("project");
         }

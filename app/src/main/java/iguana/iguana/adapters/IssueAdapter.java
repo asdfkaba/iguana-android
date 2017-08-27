@@ -21,10 +21,12 @@ import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
 import iguana.iguana.fragments.issue.IssueEditFragment;
 import iguana.iguana.models.Issue;
+import iguana.iguana.models.Project;
 
 
 public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
     private CommonMethods common = new CommonMethods();
+    private Project project;
 
     public void do_notify() {
         common.order_by(this.order, this.items);
@@ -33,13 +35,14 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
         notifyDataSetChanged();
     }
 
-    public IssueAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener) {
+    public IssueAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Project project) {
         super(context, listener, long_listener);
         this.order = "number";
         this.rev = false;
+        this.project = project;
     }
 
-    public void replace_item(Issue item) {
+    public void replace_item(Issue item, String curr_user) {
         int idx = -1;
         int i = 0;
         for (Issue iss:this.items)   {
@@ -50,9 +53,17 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
             i++;
         }
         if (idx >= 0) {
-            items.set(idx, item);
-            notifyItemChanged(idx);
+            if (item.getAssignee().contains(curr_user))
+                items.set(idx, item);
+            else {
+                items.remove(idx);
+                return;
+            }
+
+        } else if (project != null) {
+            items.add(item);
         }
+        do_notify();
     }
 
     @Override

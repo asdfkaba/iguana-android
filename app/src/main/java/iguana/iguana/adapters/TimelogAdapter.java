@@ -32,7 +32,7 @@ public class TimelogAdapter extends BaseAdapter<Timelog> {
         return view;
     }
 
-    public void replace_item(Timelog item) {
+    public void replace_item(Timelog item, boolean deleted) {
         int idx = -1;
         int i = 0;
         for (Timelog log:this.items)   {
@@ -43,8 +43,16 @@ public class TimelogAdapter extends BaseAdapter<Timelog> {
             i++;
         }
         if (idx >= 0) {
-            items.set(idx, item);
-            notifyItemChanged(idx);
+            if (deleted) {
+                items.remove(idx);
+                notifyItemRemoved(idx);
+            } else {
+                items.set(idx, item);
+                notifyItemChanged(idx);
+            }
+        }  else {
+            items.add(items.size(), item);
+            notifyItemInserted(items.size());
         }
     }
 

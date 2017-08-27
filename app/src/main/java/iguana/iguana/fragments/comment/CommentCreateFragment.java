@@ -22,6 +22,7 @@ import iguana.iguana.R;
 import iguana.iguana.fragments.base.ApiFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.Issue;
+import iguana.iguana.remote.apicalls.CommentCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,6 +34,7 @@ import retrofit2.Response;
 public class CommentCreateFragment extends ApiFragment {
     private EditText text;
     private Issue issue;
+    private CommentCalls api;
 
     public CommentCreateFragment() {
         // Required empty public constructor
@@ -65,6 +67,7 @@ public class CommentCreateFragment extends ApiFragment {
     public void onStart() {
         super.onStart();
         View view = getView();
+        api = new CommentCalls(view);
         Button button = (Button) view.findViewById(R.id.send);
         text = (EditText) view.findViewById(R.id.text);
         if (getArguments() != null)
@@ -73,40 +76,9 @@ public class CommentCreateFragment extends ApiFragment {
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String body_text = text.getText().toString();
-
                 HashMap body = new HashMap<>();
                 body.put("text", text.getText().toString());
-                System.out.println(body);
-
-                get_api_service().createComment(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Comment>() {
-                                                                   @Override
-                                                                   public void onResponse(Call<Comment> call, Response<Comment> response) {
-                                                                       if (response.isSuccessful()) {
-                                                                           getFragmentManager().popBackStack();
-
-                                                                       } else {
-                                                                           try {
-                                                                               JSONObject obj = new JSONObject(response.errorBody().string());
-                                                                               Iterator<?> keys = obj.keys();
-                                                                               while (keys.hasNext()) {
-                                                                                   String key = (String) keys.next();
-                                                                                   if (key.equals("text")) {
-                                                                                       text.setError(obj.get(key).toString());
-                                                                                   }
-                                                                               }
-
-                                                                           } catch (JSONException | IOException e) {
-                                                                               e.printStackTrace();
-                                                                           }
-                                                                       }
-                                                                   }
-
-                                                                   @Override
-                                                                   public void onFailure(Call<Comment> call, Throwable t) {
-                                                                       t.printStackTrace();
-                                                                   }
-                                                               }
-                    );
+                api.createComment(issue, body);
             }
         });
     }

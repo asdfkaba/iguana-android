@@ -29,6 +29,7 @@ import iguana.iguana.models.ProjectResult;
 import java.util.HashMap;
 import java.util.Map;
 
+import iguana.iguana.remote.apicalls.ProjectCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,6 +41,7 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
     private ProjectAdapter adapter;
     private Project selected;
     private int selected_pos;
+    private ProjectCalls api;
 
 
     public ProjectsFragment() {}
@@ -100,14 +102,16 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        View view = getView();
+        api = new ProjectCalls(view);
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if (adapter == null) {
-            progress = (ProgressBar) getView().findViewById(R.id.progressBar);
+            progress = (ProgressBar) view.findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
-            getProjects(current_page);
             adapter = new ProjectAdapter(getActivity(), this, this);
+            api.getProjects(current_page, adapter);
         }
 
         recyclerView.setAdapter(adapter);
@@ -120,14 +124,12 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
                 adapter.clear();
                 current_page = 1;
                 progress.setVisibility(View.VISIBLE);
-                getProjects(current_page);
+                api.getProjects(current_page, adapter);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
 
     }
-
-
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Do something that differs the Activity's menu here
@@ -152,31 +154,6 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
     }
 
 
-    public void getProjects(int page) {
-        Map options = new HashMap<String,String>();
-        options.put("page", page);
-        get_api_service().getProjects().enqueue(new Callback<ProjectResult>() {
-            @Override
-            public void onResponse(Call<ProjectResult> call, Response<ProjectResult> response) {
-                if(response.isSuccessful()) {
-                    adapter.addAll(response.body().getResults());
-                    if (response.body().getNext() != null) {
-                        getProjects(++current_page);
-                    } else {
-                        progress.setVisibility(View.GONE);
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ProjectResult> call, Throwable t) {
-                Toast.makeText(getActivity(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
-                progress.setVisibility(View.GONE);
-
-            }
-        });
-    }
 
 
 }

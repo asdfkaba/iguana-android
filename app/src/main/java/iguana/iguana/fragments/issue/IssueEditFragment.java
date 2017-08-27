@@ -19,10 +19,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import iguana.iguana.app.MainActivity;
+import iguana.iguana.common.view.MultipleSpinner;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.new_token;
 import iguana.iguana.fragments.base.ApiFragment;
@@ -30,7 +32,11 @@ import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
 import iguana.iguana.models.Issue;
+import iguana.iguana.models.Project;
+import iguana.iguana.models.Token;
 import iguana.iguana.remote.APIService;
+import iguana.iguana.remote.apicalls.IssueCalls;
+import iguana.iguana.remote.apicalls.ProjectCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,8 +44,12 @@ import retrofit2.Response;
 public class IssueEditFragment extends ApiFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
+    private MultipleSpinner assignees;
     private CommonMethods common;
     private Issue issue;
+    private Project project;
+    private IssueCalls api;
+
     public Issue getIssue() {
         return this.issue;
     }
@@ -58,6 +68,8 @@ public class IssueEditFragment extends ApiFragment {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null && issue == null) {
                 issue = savedInstanceState.getParcelable("issue");
+                project = savedInstanceState.getParcelable("project");
+
         }
     }
 
@@ -72,8 +84,16 @@ public class IssueEditFragment extends ApiFragment {
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
         common = new CommonMethods();
         View view = getView();
-        Button button = (Button) view.findViewById(R.id.send);
+        api = new IssueCalls(view);
+        if (issue == null)
+            issue = getArguments().getParcelable("issue");
 
+        assignees = (MultipleSpinner) view.findViewById(R.id.assignees);
+        assignees.setItems(issue.getProjectMembers());
+        assignees.setSelection(issue.getAssignee());
+
+
+        Button button = (Button) view.findViewById(R.id.send);
         title = (EditText) view.findViewById(R.id.title);
         description = (EditText) view.findViewById(R.id.description);
         due_date = (EditText) view.findViewById(R.id.due_date);
@@ -81,7 +101,7 @@ public class IssueEditFragment extends ApiFragment {
         type = (Spinner) view.findViewById(R.id.type);
         storypoints = (EditText) view.findViewById(R.id.storypoints);
 
-        issue = getArguments().getParcelable("issue");
+       
 
         title.setText(issue.getTitle());
         description.setText(issue.getDescription());
@@ -117,44 +137,13 @@ public class IssueEditFragment extends ApiFragment {
                 body.put("type", body_type);
                 if (body_due_date.length() > 0)
                     body.put("due_date", body_due_date);
+                body.put("assignee", assignees.getSelectedStrings().toArray());
 
-                get_api_service().editIssue(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Issue>() {
-                                                                         @Override
-                                                                         public void onResponse(Call<Issue> call, Response<Issue> response) {
-                                                                             if (response.isSuccessful()) {
-                                                                                 EventBus.getDefault().postSticky(new issue_changed(response.body()));
-                                                                                 getFragmentManager().popBackStack();
-                                                                             } else {
-                                                                                 try {
-                                                                                     JSONObject obj = new JSONObject(response.errorBody().string());
-                                                                                     Iterator<?> keys = obj.keys();
-                                                                                     while (keys.hasNext()) {
-                                                                                         String key = (String) keys.next();
-                                                                                         if (key.equals("title")) {
-                                                                                             title.setError(obj.get(key).toString());
-                                                                                         } else if (key.equals("description")) {
-                                                                                             description.setError(obj.get(key).toString());
-                                                                                         } else if (key.equals("storypoints")) {
-                                                                                             storypoints.setError(obj.get(key).toString());
-                                                                                         } else if (key.equals("due_date")) {
-                                                                                             due_date.setError(obj.get(key).toString());
-                                                                                         }
-                                                                                     }
-
-                                                                                 } catch (JSONException | IOException e) {
-                                                                                     e.printStackTrace();
-                                                                                 }
-                                                                             }
-                                                                         }
-
-                                                                         @Override
-                                                                         public void onFailure(Call<Issue> call, Throwable t) {
-                                                                             t.printStackTrace();
-                                                                         }
-                                                                     }
-                );
+                api.editIssue(issue, body);
             }
         });
+
+
     }
 
     @Override

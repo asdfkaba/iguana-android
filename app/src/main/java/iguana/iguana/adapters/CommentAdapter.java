@@ -59,6 +59,9 @@ public class CommentAdapter extends BaseAdapter<Comment> {
             System.out.println("REPLACE");
             items.set(idx, item);
             notifyItemChanged(idx);
+        } else {
+            items.add(items.size(), item);
+            notifyItemInserted(items.size());
         }
     }
 

@@ -20,6 +20,7 @@ import iguana.iguana.R;
 import iguana.iguana.fragments.base.ApiFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
+import iguana.iguana.remote.apicalls.TimelogCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,6 +32,7 @@ import retrofit2.Response;
 public class TimelogCreateFragment extends ApiFragment {
     private EditText time;
     private Issue issue;
+    private TimelogCalls api;
 
     public TimelogCreateFragment() {
         // Required empty public constructor
@@ -62,6 +64,7 @@ public class TimelogCreateFragment extends ApiFragment {
         super.onStart();
 
         View view = getView();
+        api = new TimelogCalls(view);
         Button button = (Button) view.findViewById(R.id.send);
         time = (EditText) view.findViewById(R.id.time);
 
@@ -73,36 +76,7 @@ public class TimelogCreateFragment extends ApiFragment {
                 String body_text = time.getText().toString();
                 HashMap body = new HashMap<>();
                 body.put("time", time.getText().toString());
-
-                get_api_service().createTimelog(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Timelog>() {
-                                                                   @Override
-                                                                   public void onResponse(Call<Timelog> call, Response<Timelog> response) {
-                                                                       if (response.isSuccessful()) {
-                                                                           getFragmentManager().popBackStack();
-
-                                                                       } else {
-                                                                           try {
-                                                                               JSONObject obj = new JSONObject(response.errorBody().string());
-                                                                               Iterator<?> keys = obj.keys();
-                                                                               while (keys.hasNext()) {
-                                                                                   String key = (String) keys.next();
-                                                                                   if (key.equals("time")) {
-                                                                                       time.setError(obj.get(key).toString());
-                                                                                   }
-                                                                               }
-
-                                                                           } catch (JSONException | IOException e) {
-                                                                               e.printStackTrace();
-                                                                           }
-                                                                       }
-                                                                   }
-
-                                                                   @Override
-                                                                   public void onFailure(Call<Timelog> call, Throwable t) {
-                                                                       t.printStackTrace();
-                                                                   }
-                                                               }
-                    );
+                api.createTimelog(issue, body);
             }
         });
     }

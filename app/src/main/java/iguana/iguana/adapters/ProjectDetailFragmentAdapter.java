@@ -52,7 +52,7 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
                 return frag;
             case 1:
                 frag = new IssuesFragment();
-                d.putString("project", project.getNameShort());
+                d.putParcelable("project", project);
                 frag.setArguments(d);
                 return frag;
             case 4:
