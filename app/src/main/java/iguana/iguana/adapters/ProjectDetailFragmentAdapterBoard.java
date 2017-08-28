@@ -17,19 +17,18 @@ import iguana.iguana.models.Project;
  * Created by moritz on 21.08.17.
  */
 
-public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 5;
-    private String tabTitles[] = new String[] { "Details", "Issues", "Board", "Backlog", "Create" };
+public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
+    final int PAGE_COUNT;
+    private String tabTitles[];
     private Context context;
     private Project project;
 
-    public ProjectDetailFragmentAdapter(FragmentManager fm, Context context, Project project) {
+    public ProjectDetailFragmentAdapterBoard(FragmentManager fm, Context context, Project project) {
         super(fm);
         this.context = context;
         this.project = project;
-        if (project.getCurrentsprint() != null)
-            tabTitles[2] = "Sprintboard";
-
+        this.tabTitles = project.getKanbancol().toArray(new String[0]);
+        this.PAGE_COUNT = project.getKanbancol().size();
     }
 
     public Object instantiateItem(ViewGroup container, int position) {
@@ -49,31 +48,12 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
         Fragment frag;
         Bundle d = new Bundle();
         switch (position) {
-            case 0:
-                frag = new ProjectDetailFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
-            case 1:
+            default:
                 frag = new IssuesFragment();
                 d.putParcelable("project", project);
+                d.putString("status", tabTitles[position]);
                 frag.setArguments(d);
                 return frag;
-            case 2:
-                frag = new BoardBaseFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
-            case 4:
-                frag = new IssueCreateFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
-            default:
-                frag = new ProjectDetailFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return new ProjectDetailFragment();
         }
 
     }

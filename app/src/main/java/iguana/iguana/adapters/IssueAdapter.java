@@ -27,6 +27,7 @@ import iguana.iguana.models.Project;
 public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
     private CommonMethods common = new CommonMethods();
     private Project project;
+    private String status;
 
     public void do_notify() {
         common.order_by(this.order, this.items);
@@ -35,11 +36,12 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
         notifyDataSetChanged();
     }
 
-    public IssueAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Project project) {
+    public IssueAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Project project, String status) {
         super(context, listener, long_listener);
         this.order = "number";
         this.rev = false;
         this.project = project;
+        this.status = status;
     }
 
     public void replace_item(Issue item, String curr_user) {
@@ -52,17 +54,24 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
             }
             i++;
         }
-        if (idx >= 0) {
+        if (idx >= 0 && project == null) {
             if (item.getAssignee().contains(curr_user))
                 items.set(idx, item);
             else {
                 items.remove(idx);
-                return;
             }
-
-        } else if (project != null) {
+        } else if (project == null) {
+            items.add(item);
+        } else if (idx >= 0 && project != null && item.getProjectShortName().equals(project.getNameShort()) && status == null) {
+            items.set(idx, item);
+        } else if (project != null && item.getProjectShortName().equals(project.getNameShort()) && status == null) {
+            items.add(item);
+        } else if (idx >= 0 && project != null && item.getProjectShortName().equals(project.getNameShort()) && status.equals(item.getKanbancol())) {
+        items.set(idx, item);
+         } else if (project != null && item.getProjectShortName().equals(project.getNameShort()) && status.equals(item.getKanbancol())) {
             items.add(item);
         }
+
         do_notify();
     }
 

@@ -42,7 +42,7 @@ public class IssuesFragment
     private Issue selected;
     private int selected_pos;
     private IssueCalls api;
-    private HashMap filters;
+    private String status;
 
     public IssuesFragment() {}
 
@@ -120,19 +120,22 @@ public class IssuesFragment
 
         if (project == null)
             project = getArguments().getParcelable("project");
+        if  (status == null)
+            status = getArguments().getString("status");
+
 
         if (adapter == null) {
             progress = (ProgressBar) view.findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
-            adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project : ""), false);
-            adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project : ""), "number");
-            adapter = new IssueAdapter(getActivity(), this, this, project);
+            adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project : "") + (status != null ? "board": ""), false);
+            adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project : "") + (status != null ? "board": ""), "number");
+            adapter = new IssueAdapter(getActivity(), this, this, project, status);
             adapter.set_order(adapter_order);
             adapter.set_reverse(adapter_reverse);
             if (project == null)
                 api.getIssues(current_page, adapter);
             else
-                api.getProjectIssues(project.getNameShort(), current_page, adapter);
+                api.getProjectIssues(project, current_page, adapter, status);
         }
 
         recyclerView.setAdapter(adapter);
@@ -147,16 +150,14 @@ public class IssuesFragment
                 if (project == null)
                     api.getIssues(current_page, adapter);
                 else
-                    api.getProjectIssues(project.getNameShort(), current_page, adapter);
+                    api.getProjectIssues(project, current_page, adapter, status);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
     }
 
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         // show order by menu entry; set default order
         menu.findItem(R.id.menuSort).setVisible(true);
         if (adapter != null) {
@@ -178,7 +179,7 @@ public class IssuesFragment
 
         }
         // in project context show add icon
-        if (project != null)
+        if (project != null && status == null)
             menu.findItem(R.id.add).setVisible(true);
 
 
@@ -250,8 +251,8 @@ public class IssuesFragment
             default:
                 return super.onOptionsItemSelected(item);
         }
-        editor.putString("issue_list_order" + (project != null ? project : ""), adapter_order);
-        editor.putBoolean("issue_list_reverse" + (project != null ? project : ""), adapter_reverse);
+        editor.putString("issue_list_order" + (project != null ? yproject : "") + (status != null ? "board": ""), adapter_order);
+        editor.putBoolean("issue_list_reverse" + (project != null ? project : "") + (status != null ? "board": ""), adapter_reverse);
         editor.commit();
         return true;
     }

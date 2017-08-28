@@ -32,8 +32,6 @@
             />
 
 
-
-
         <EditText
             android:id="@+id/time"
             android:hint="e.g. 2h15m"

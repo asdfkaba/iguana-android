@@ -20,6 +20,7 @@ import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
+import iguana.iguana.models.Project;
 import iguana.iguana.remote.APIService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,24 +41,30 @@ public class IssueCalls {
         return ((MainActivity) view.getContext()).get_api_service();
     }
 
-    public void getProjectIssues(String proj, Integer pa, IssueAdapter ada) {
+    public void getProjectIssues(Project proj, Integer pa, IssueAdapter ada, String statu) {
         final IssueAdapter adapter = ada;
-        final String project = proj;
+        final Project project = proj;
         final Integer page = pa;
         final View view = rootView;
         final ProgressBar progress = (ProgressBar) view.findViewById(R.id.progressBar);
+        final String status = statu;
 
         Map options = new HashMap<String, String>();
         options.put("page", page);
+        if (status != null)
+            options.put("status", status);
+        if (project.getCurrentsprint() != null)
+            options.put("sprint", project.getCurrentsprint().split("-")[1]);
+        System.out.println(options);
 
-        get_api_service(view).getProjectIssues(project, options).enqueue(new Callback<IssueResult>() {
+        get_api_service(view).getProjectIssues(project.getNameShort(), options).enqueue(new Callback<IssueResult>() {
             @Override
             public void onResponse(Call<IssueResult> call, Response<IssueResult> response) {
                 if (response.isSuccessful()) {
                     adapter.addAll(response.body().getResults());
 
                     if (response.body().getNext() != null) {
-                        getProjectIssues(response.body().getResults().get(0).getProjectShortName(), new Integer(page + 1), adapter);
+                        getProjectIssues(project, new Integer(page + 1), adapter, status);
                     } else {
                         progress.setVisibility(View.GONE);
                         adapter.do_notify();

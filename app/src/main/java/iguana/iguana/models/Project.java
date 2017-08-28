@@ -77,7 +77,7 @@ public class Project implements Parcelable {
     private Boolean activityOnlyForManagers;
     @SerializedName("currentsprint")
     @Expose
-    private Integer currentsprint;
+    private String currentsprint;
 
     public List<String> getManager() {
         return manager;
@@ -167,11 +167,11 @@ public class Project implements Parcelable {
         this.activityOnlyForManagers = activityOnlyForManagers;
     }
 
-    public Integer getCurrentsprint() {
+    public String getCurrentsprint() {
         return currentsprint;
     }
 
-    public void setCurrentsprint(Integer currentsprint) {
+    public void setCurrentsprint(String currentsprint) {
         this.currentsprint = currentsprint;
     }
 
