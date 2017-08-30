@@ -1,8 +1,10 @@
 package iguana.iguana.fragments.project;
 
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,6 +87,31 @@ public class ProjectEditFragment extends ApiFragment {
                     body.put("description", body_description);
 
                 api.editProject(project, body);
+            }
+        });
+
+        Button delete = (Button) view.findViewById(R.id.delete);
+
+        final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        getView().findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                        api.deleteProject(project);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AlertDialog.Builder ab = new AlertDialog.Builder(getActivity());
+                ab.setMessage("Are you sure you want  to delete this object?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
             }
         });
     }

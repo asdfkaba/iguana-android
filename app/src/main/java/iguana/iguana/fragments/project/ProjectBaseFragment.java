@@ -22,6 +22,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapter;
@@ -41,6 +42,10 @@ public class ProjectBaseFragment extends Fragment {
     private SlidingTabLayout mSlidingTabLayout;
     private ProjectDetailFragmentAdapter adapter;
     private ViewPager mViewPager;
+
+    public ProjectDetailFragmentAdapter getAdapter() {
+        return adapter;
+    }
 
     public Project getProject() {
         return this.project;
@@ -76,6 +81,8 @@ public class ProjectBaseFragment extends Fragment {
         mViewPager.setAdapter(adapter);
 
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+        mSlidingTabLayout.setDistributeEvenly(true);
+
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 }

@@ -4,7 +4,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.ViewGroup;
 
 import iguana.iguana.fragments.issue.IssueCreateFragment;
@@ -22,6 +24,33 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
     private String tabTitles[];
     private Context context;
     private Project project;
+    private Fragment mCurrentFragment;
+    private Fragment mLastFragment;
+
+    private int refresh;
+    private int save_position;
+
+    public Fragment getCurrentFragment() {
+        return mCurrentFragment;
+    }
+
+    public void setRefresh() {
+        refresh = 0;
+    }
+
+    @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        mLastFragment = mCurrentFragment;
+        if (getCurrentFragment() != object) {
+            mCurrentFragment = ((Fragment) object);
+            ((IssuesFragment) mCurrentFragment).update();
+        }
+        if(save_position != position && mLastFragment != null)
+            ((IssuesFragment) mLastFragment).invalidate();
+
+        save_position = position;
+        super.setPrimaryItem(container, position, object);
+    }
 
     public ProjectDetailFragmentAdapterBoard(FragmentManager fm, Context context, Project project) {
         super(fm);
@@ -29,13 +58,15 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
         this.project = project;
         this.tabTitles = project.getKanbancol().toArray(new String[0]);
         this.PAGE_COUNT = project.getKanbancol().size();
+        this.refresh = -1;
     }
 
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+        ((IssuesFragment) createdFragment).invalidate();
+        System.out.println(position);
         return createdFragment;
     }
-
 
     @Override
     public int getCount() {

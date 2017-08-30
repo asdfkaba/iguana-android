@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
@@ -62,7 +63,7 @@ public class MainActivity extends Activity {
 
 
     public String get_user() {
-        return getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_token", null);
+        return getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null);
     }
 
 
@@ -111,7 +112,9 @@ public class MainActivity extends Activity {
             if (ret == 2)
                 Toast.makeText(this, "Please login on your iguana server (settings)", Toast.LENGTH_SHORT).show();
         }
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getActionBar().setElevation(0);
+        }
         setContentView(R.layout.activity_main);
         titles = getResources().getStringArray(R.array.titles);
         drawerList = (ListView) findViewById(R.id.drawer);
@@ -225,7 +228,7 @@ public class MainActivity extends Activity {
                 break;
             case 2:
                 Bundle d = new Bundle();
-                d.putString("project", "None");
+                d.putParcelable("project", null);
                 fragment = new IssuesFragment();
                 fragment.setArguments(d);
                 break;

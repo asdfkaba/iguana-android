@@ -19,6 +19,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -39,6 +40,11 @@ public interface APIService {
     Call<Project> editProject(
             @Path("name_short") String name_short,
             @Body HashMap<String, Object> body
+    );
+
+    @DELETE("api/projects/{name_short}/")
+    Call<Object> deleteProject(
+            @Path("name_short") String name_short
     );
 
     @GET("api/projects/{name_short}/issues/?archived=false")
@@ -85,6 +91,14 @@ public interface APIService {
             @Body HashMap<String, Object> body
     );
 
+    @PATCH("api/projects/{name_short}/issues/{issue_number}/")
+    Call<Issue> patchIssue(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Body HashMap<String, Object> body
+    );
+
+
 
     @PUT("api/projects/{name_short}/issues/{issue_number}/comments/{comment_number}/")
     Call<Comment> editComment(
@@ -100,6 +114,13 @@ public interface APIService {
             @Path("issue_number") Integer number,
             @Path("log_number") Integer seqnum,
             @Body HashMap<String, Object> body
+    );
+
+    @DELETE("api/projects/{name_short}/issues/{issue_number}/comments/{comment_number}/")
+    Call<Object> deleteComment(
+            @Path("name_short") String name_short,
+            @Path("issue_number") Integer number,
+            @Path("comment_number") Integer seqnum
     );
 
     @POST("api/projects/")

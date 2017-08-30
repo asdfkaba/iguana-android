@@ -5,15 +5,15 @@
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-<!-- TODO: Update blank fragment layout -->
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="15dp"
+
         >
 
         <ProgressBar
@@ -23,45 +23,89 @@
             android:layout_centerInParent="true"
             android:minHeight="50dp"
             android:minWidth="50dp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/issue_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:textStyle="italic"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/issue_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:text=""
-            android:textAlignment="textStart"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="24sp"
+            android:textSize="20dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/issue_short" />
 
-        <TextView
+        <View
+            android:id="@+id/title_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/iguana"
+            app:layout_constraintTop_toBottomOf="@+id/issue_title" />
+
+        <us.feras.mdv.MarkdownView
             android:id="@+id/issue_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/issue_detail_wrapper"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/issue_title"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/title_line" />
+
+        <View
+            android:id="@+id/description_bottom_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/iguana"
+            app:layout_constraintTop_toBottomOf="@+id/issue_description" />
+
+
+        <TextView
+            android:id="@+id/issue_priority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Priority: "
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description_bottom_line" />
 
         <TextView
             android:id="@+id/issue_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="Status: "
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/issue_description" />
+            app:layout_constraintTop_toBottomOf="@+id/issue_priority" />
 
         <TextView
             android:id="@+id/issue_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Type: "
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/issue_status" />
+
+        <TextView
+            android:id="@+id/issue_storypoints"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Storypoints: "
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/issue_type" />
+
+        <TextView
+            android:id="@+id/issue_assignees"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
             android:text=""
-            app:layout_constraintLeft_toRightOf="@+id/issue_status"
-            app:layout_constraintTop_toBottomOf="@+id/issue_description"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/issue_storypoints" />
+
 
     </android.support.constraint.ConstraintLayout>
 

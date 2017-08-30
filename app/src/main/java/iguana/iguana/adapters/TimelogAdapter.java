@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import iguana.iguana.R;
 import iguana.iguana.fragments.comment.CommentEditFragment;
 import iguana.iguana.fragments.timelog.TimelogEditFragment;
@@ -63,8 +67,11 @@ public class TimelogAdapter extends BaseAdapter<Timelog> {
             TextView created_at = (TextView) viewHolder.getView(R.id.created_at);
             TextView issue = (TextView) viewHolder.getView(R.id.issue);
             time.setText(item.getTime());
-            created_at.setText(item.getCreatedAt());
-            issue.setText(item.getIssue().split(" ")[0] );
+            DateTime dt = new DateTime(item.getCreatedAt());
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+            String test = fmt.print(dt);
+            created_at.setText(test);
+            issue.setText(" on " + item.getIssue().split(" ")[0] );
             ImageButton edit = (ImageButton) viewHolder.getView(R.id.edit);
             final Timelog timelog = item;
             if (item.isSelected()) {

@@ -20,6 +20,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectAdapter;
+import iguana.iguana.events.comment_changed;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.project_changed;
 import iguana.iguana.fragments.base.ApiScrollFragment;
@@ -81,6 +82,21 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
         ft.commit();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        invalidate();
+    }
+
+    public void invalidate() {
+        if (selected != null) {
+            selected.toggleSelected();
+            selected = null;
+            adapter.notifyItemChanged(selected_pos);
+            selected_pos = -1;
+        }
+    }
+
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -89,9 +105,9 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
     }
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(project_changed event) {
-        System.out.println("event");
-        if (adapter != null)
-            adapter.replace_item(event.getProject());
+        project_changed stickyEvent = EventBus.getDefault().removeStickyEvent(project_changed.class);
+        if (adapter != null && stickyEvent != null)
+            adapter.replace_item(event.getProject(), event.deleted());
     }
     @Override
     public void onStop() {

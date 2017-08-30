@@ -8,51 +8,40 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/content"
-
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="15dp">
 
-        <iguana.iguana.common.view.SlidingTabLayout
-            android:id="@+id/sliding_tabs"
-            android:layout_width="368dp"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteY="81dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            tools:layout_editor_absoluteX="8dp" />
 
         <TextView
             android:id="@+id/project_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             android:fontFamily="sans-serif"
             android:textAlignment="textStart"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sliding_tabs" />
+
+        <View
+            android:id="@+id/project_name_bottom_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/iguana"
+            app:layout_constraintTop_toBottomOf="@+id/project_name" />
+
 
         <TextView
             android:id="@+id/project_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             android:text=""
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/project_name" />
-
+            app:layout_constraintTop_toBottomOf="@+id/project_name_bottom_line" />
 
 
 

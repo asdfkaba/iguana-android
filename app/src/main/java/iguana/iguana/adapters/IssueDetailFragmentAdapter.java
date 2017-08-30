@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import iguana.iguana.fragments.comment.CommentsFragment;
 import iguana.iguana.fragments.issue.IssueDetailFragment;
+import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.fragments.timelog.TimelogsFragment;
 import iguana.iguana.models.Issue;
 
@@ -21,11 +22,32 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] { "Details", "Comments", "Timelogs", "Commits", "Attachments" };
     private Context context;
     private Issue issue;
+    private Fragment mLastFragment;
+    private Fragment mCurrentFragment;
+    private int save_position;
 
     public IssueDetailFragmentAdapter(FragmentManager fm, Context context, Issue issue) {
         super(fm);
         this.context = context;
         this.issue = issue;
+    }
+
+    @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        mLastFragment = mCurrentFragment;
+        if (mCurrentFragment != object) {
+            mCurrentFragment = ((Fragment) object);
+        }
+        if(save_position != position && mLastFragment != null) {
+            if (mLastFragment instanceof TimelogsFragment)
+                ((TimelogsFragment) mLastFragment).invalidate();
+            if (mLastFragment instanceof CommentsFragment)
+                ((CommentsFragment) mLastFragment).invalidate();
+        }
+
+        save_position = position;
+
+        super.setPrimaryItem(container, position, object);
     }
 
 

@@ -34,7 +34,7 @@ public class ProjectAdapter extends BaseAdapter<Project> {
         return view;
     }
 
-    public void replace_item(Project item) {
+    public void replace_item(Project item, boolean deleted) {
         int idx = -1;
         int i = 0;
         for (Project project:this.items)   {
@@ -45,9 +45,13 @@ public class ProjectAdapter extends BaseAdapter<Project> {
             i++;
         }
         if (idx >= 0) {
-            System.out.println("REPLACE");
-            items.set(idx, item);
-            notifyItemChanged(idx);
+            if (deleted) {
+                items.remove(idx);
+                notifyItemRemoved(idx);
+            } else {
+                items.set(idx, item);
+                notifyItemChanged(idx);
+            }
         } else {
             items.add(0, item);
             notifyItemInserted(0);

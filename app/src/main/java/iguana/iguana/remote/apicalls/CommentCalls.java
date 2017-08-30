@@ -18,9 +18,11 @@ import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.comment_changed;
+import iguana.iguana.events.timelog_changed;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
 import iguana.iguana.models.Issue;
+import iguana.iguana.models.Timelog;
 import iguana.iguana.remote.APIService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -78,9 +80,33 @@ public class CommentCalls {
         });
     }
 
+    public void deleteComment(Comment com) {
+        final Comment comment = com;
+        final EditText text = (EditText) rootView.findViewById(R.id.time);
 
+        get_api_service(rootView).deleteComment(comment.getNameShort(), comment.getIssueNumber(), comment.getSeqnum()).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                if (response.isSuccessful()) {
+                    System.out.println("ASD");
+                    EventBus.getDefault().postSticky(new comment_changed(comment, true));
+                    ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
+                } else {
+                    rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    try {
+                        System.out.println(response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
-
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(rootView.getContext(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
 
     public void createComment(Issue iss, HashMap body) {
@@ -91,7 +117,7 @@ public class CommentCalls {
             @Override
             public void onResponse(Call<Comment> call, Response<Comment> response) {
                 if (response.isSuccessful()) {
-                    EventBus.getDefault().postSticky(new comment_changed(response.body()));
+                    EventBus.getDefault().postSticky(new comment_changed(response.body(), false));
                     ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
                 } else {
                     try {
@@ -125,7 +151,7 @@ public class CommentCalls {
             @Override
             public void onResponse(Call<Comment> call, Response<Comment> response) {
                 if (response.isSuccessful()) {
-                    EventBus.getDefault().postSticky(new comment_changed(response.body()));
+                    EventBus.getDefault().postSticky(new comment_changed(response.body(), false));
                     ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
 
                 } else {

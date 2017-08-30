@@ -53,8 +53,12 @@ public class IssueCalls {
         options.put("page", page);
         if (status != null)
             options.put("status", status);
-        if (project.getCurrentsprint() != null)
+     ;
+        if (project.getCurrentsprint() != null && status != null)
             options.put("sprint", project.getCurrentsprint().split("-")[1]);
+        else if (project.getCurrentsprint() != null)
+            options.put("sprint__isnull", "true");
+
         System.out.println(options);
 
         get_api_service(view).getProjectIssues(project.getNameShort(), options).enqueue(new Callback<IssueResult>() {
@@ -130,6 +134,7 @@ public class IssueCalls {
             @Override
             public void onResponse(Call<Issue> call, Response<Issue> response) {
                 if (response.isSuccessful()) {
+
                     EventBus.getDefault().postSticky(new issue_changed(response.body()));
                     ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
                 } else {
@@ -161,6 +166,39 @@ public class IssueCalls {
             }
         });
     }
+
+    public void patchIssue(Issue iss, HashMap body) {
+        final Issue issue = iss;
+
+
+        get_api_service(rootView).patchIssue(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Issue>() {
+            @Override
+            public void onResponse(Call<Issue> call, Response<Issue> response) {
+                if (response.isSuccessful()) {
+                    rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                    rootView.findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
+
+                    EventBus.getDefault().postSticky(new issue_changed(response.body()));
+                } else {
+                    try {
+                        System.out.println(response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Issue> call, Throwable t) {
+                rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                rootView.findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
+                Toast.makeText(rootView.getContext(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
+                t.printStackTrace();
+            }
+        });
+    }
+
 
     public void createIssue(String project, HashMap body) {
         final EditText title = (EditText) rootView.findViewById(R.id.title);

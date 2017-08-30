@@ -70,11 +70,27 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        invalidate();
+    }
+
+    public void invalidate() {
+        if (selected != null) {
+            selected.toggleSelected();
+            selected = null;
+            adapter.notifyItemChanged(selected_pos);
+            selected_pos = -1;
+        }
+    }
+
+    @Override
     public void onClick(View view, int position, Timelog item) {}
 
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
     public void onMessageEvent(timelog_changed event) {
-        if (adapter != null)
+        timelog_changed stickyEvent = EventBus.getDefault().removeStickyEvent(timelog_changed.class);
+        if (adapter != null && stickyEvent != null)
             adapter.replace_item(event.getTimelog(), event.deleted());
     }
 

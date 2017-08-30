@@ -66,7 +66,6 @@ public class TokenAuthenticator implements Authenticator {
         if(credentials == null)
             return null;
 
-        // Add new header to rejected request and retry it
         return response.request().newBuilder()
                 .header("Authorization", String.format("JWT %s", credentials)).build();    }
 }

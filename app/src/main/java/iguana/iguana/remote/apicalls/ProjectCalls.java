@@ -22,9 +22,11 @@ import iguana.iguana.adapters.ProjectAdapter;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.common.view.MultipleSpinner;
 import iguana.iguana.events.project_changed;
+import iguana.iguana.events.timelog_changed;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
+import iguana.iguana.models.Timelog;
 import iguana.iguana.remote.APIService;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -105,7 +107,7 @@ public class ProjectCalls {
             @Override
             public void onResponse(Call<Project> call, Response<Project> response) {
                 if (response.isSuccessful()) {
-                    EventBus.getDefault().postSticky(new project_changed(response.body()));
+                    EventBus.getDefault().postSticky(new project_changed(response.body(), false));
                     ((MainActivity) view.getContext()).getFragmentManager().popBackStack();
                 } else {
                     try {
@@ -182,6 +184,28 @@ public class ProjectCalls {
             public void onFailure(Call<Project> call, Throwable t) {
 
 
+            }
+        });
+    }
+
+    public void deleteProject(Project proj) {
+        final Project project = proj;
+
+        get_api_service(rootView).deleteProject(project.getNameShort()).enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                if (response.isSuccessful()) {
+                    EventBus.getDefault().postSticky(new project_changed(project,true));
+                    ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
+                } else {
+                    rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable t) {
+                Toast.makeText(rootView.getContext(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -24,6 +24,8 @@ import iguana.iguana.adapters.IssueAdapter;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.fragments.base.ApiScrollFragment;
+import iguana.iguana.fragments.project.BoardBaseFragment;
+import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
 import iguana.iguana.remote.apicalls.IssueCalls;
@@ -43,8 +45,23 @@ public class IssuesFragment
     private int selected_pos;
     private IssueCalls api;
     private String status;
+    private Menu menu;
 
     public IssuesFragment() {}
+
+    public void update() {
+        if (adapter != null) {
+            Boolean new_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "") + (status != null ? "board": "!!!"), false);
+            String new_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : "") + (status != null ? "board": "!!!"), "number");
+            if (new_reverse != adapter_reverse || new_order != adapter_order) {
+                adapter_order = new_order;
+                adapter_reverse = new_reverse;
+                adapter.set_order(new_order);
+                adapter.set_reverse(new_reverse);
+                adapter.do_notify();
+            }
+        }
+    }
 
     @Override
     public void onClick(View view, int position, Issue item) {
@@ -98,10 +115,25 @@ public class IssuesFragment
         }
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onMessageEvent(issue_changed event) {
         if (adapter != null)
             adapter.replace_item(event.getIssue(), ((MainActivity) getActivity()).get_user());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        invalidate();
+    }
+
+    public void invalidate() {
+        if (selected != null) {
+            selected.toggleSelected();
+            selected = null;
+            adapter.notifyItemChanged(selected_pos);
+            selected_pos = -1;
+        }
     }
 
     @Override
@@ -127,9 +159,9 @@ public class IssuesFragment
         if (adapter == null) {
             progress = (ProgressBar) view.findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
-            adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project : "") + (status != null ? "board": ""), false);
-            adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project : "") + (status != null ? "board": ""), "number");
-            adapter = new IssueAdapter(getActivity(), this, this, project, status);
+            adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), false);
+            adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), "number");
+            adapter = new IssueAdapter(getActivity(), this, this, project, status, view);
             adapter.set_order(adapter_order);
             adapter.set_reverse(adapter_reverse);
             if (project == null)
@@ -156,34 +188,44 @@ public class IssuesFragment
         });
     }
 
+   private void set_menu_items(Menu menu, String adapter_order, boolean adapter_reverse) {
+       switch (adapter_order) {
+           case "number":
+               menu.findItem(R.id.menuSortNumber).setChecked(true);
+               break;
+           case "priority":
+               menu.findItem(R.id.menuSortPriority).setChecked(true);
+               break;
+           case "storypoints":
+               menu.findItem(R.id.menuSortStorypoints).setChecked(true);
+               break;
+           case "title":
+               menu.findItem(R.id.menuSortTitle).setChecked(true);
+               break;
+           case "type":
+               menu.findItem(R.id.menuSortType).setChecked(true);
+               break;
+       }
+       if (adapter_reverse)
+           menu.findItem(R.id.menuSortReverse).setChecked(true);
 
+   }
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // show order by menu entry; set default order
-        menu.findItem(R.id.menuSort).setVisible(true);
-        if (adapter != null) {
-            switch (adapter_order) {
-                case "number":
-                    menu.findItem(R.id.menuSortNumber).setChecked(true); break;
-                case "priority":
-                    menu.findItem(R.id.menuSortPriority).setChecked(true); break;
-                case "storypoints":
-                    menu.findItem(R.id.menuSortStorypoints).setChecked(true); break;
-                case "title":
-                    menu.findItem(R.id.menuSortTitle).setChecked(true); break;
-                case "type":
-                    menu.findItem(R.id.menuSortType).setChecked(true); break;
-            }
-            if (adapter_reverse)
-                menu.findItem(R.id.menuSortReverse).setChecked(true);
-
-
-        }
-        // in project context show add icon
-        if (project != null && status == null)
-            menu.findItem(R.id.add).setVisible(true);
-
-
         super.onCreateOptionsMenu(menu, inflater);
+        if(getUserVisibleHint()) {
+            menu.findItem(R.id.menuSort).setVisible(true);
+            System.out.println(adapter_order + adapter_reverse);
+            System.out.println(this + this.status);
+            if (adapter != null) {
+                set_menu_items(menu, adapter_order, adapter_reverse);
+            }
+            // in project context show add icon
+            if (project != null && status == null)
+                menu.findItem(R.id.add).setVisible(true);
+        }
+
+
 
     }
 
@@ -237,13 +279,12 @@ public class IssuesFragment
                 break;
             case R.id.menuSortReverse:
                 adapter.toggleReverse();
+                adapter_reverse = !adapter_reverse;
                 if (item.isChecked()) {
                     item.setChecked(false);
-                    adapter_reverse = false;
                 }
                 else {
                     item.setChecked(true);
-                    adapter_reverse = true;
                 }
                 adapter.do_notify();
                 break;
@@ -251,8 +292,9 @@ public class IssuesFragment
             default:
                 return super.onOptionsItemSelected(item);
         }
-        editor.putString("issue_list_order" + (project != null ? yproject : "") + (status != null ? "board": ""), adapter_order);
-        editor.putBoolean("issue_list_reverse" + (project != null ? project : "") + (status != null ? "board": ""), adapter_reverse);
+        System.out.println("issue_list_order" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"));
+        editor.putString("issue_list_order" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), adapter_order);
+        editor.putBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), adapter_reverse);
         editor.commit();
         return true;
     }

@@ -49,6 +49,7 @@ public class IssueBaseFragment extends Fragment {
         adapter = new IssueDetailFragmentAdapter(getChildFragmentManager(), getActivity(), issue);
         mViewPager.setAdapter(adapter);
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+        mSlidingTabLayout.setDistributeEvenly(true);
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 }

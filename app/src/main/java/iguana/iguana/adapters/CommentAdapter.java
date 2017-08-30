@@ -45,7 +45,7 @@ public class CommentAdapter extends BaseAdapter<Comment> {
         return view;
     }
 
-    public void replace_item(Comment item) {
+    public void replace_item(Comment item, boolean deleted) {
         int idx = -1;
         int i = 0;
         for (Comment comment:this.items)   {
@@ -56,9 +56,13 @@ public class CommentAdapter extends BaseAdapter<Comment> {
             i++;
         }
         if (idx >= 0) {
-            System.out.println("REPLACE");
-            items.set(idx, item);
-            notifyItemChanged(idx);
+            if (deleted) {
+                items.remove(idx);
+                notifyItemRemoved(idx);
+            } else {
+                items.set(idx, item);
+                notifyItemChanged(idx);
+            }
         } else {
             items.add(items.size(), item);
             notifyItemInserted(items.size());

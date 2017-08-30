@@ -60,6 +60,14 @@ public class BoardBaseFragment extends Fragment {
         }
     }
 
+    public ProjectDetailFragmentAdapterBoard getAdapter() {
+        return adapter;
+    }
+
+    public void notify_adapters() {
+        adapter.setRefresh();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -86,7 +94,8 @@ public class BoardBaseFragment extends Fragment {
         mViewPager.setAdapter(adapter);
 
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        mSlidingTabLayout.setOnTouchListener(new OnTouch());
+        // mSlidingTabLayout.setOnTouchListener(new OnTouch());
+        mSlidingTabLayout.setDistributeEvenly(true);
         mSlidingTabLayout.setViewPager(mViewPager);
     }
 }

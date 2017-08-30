@@ -18,18 +18,41 @@ import iguana.iguana.models.Project;
  */
 
 public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 5;
-    private String tabTitles[] = new String[] { "Details", "Issues", "Board", "Backlog", "Create" };
+    final int PAGE_COUNT = 3;
+    private String tabTitles[] = new String[] { "Details", "Issues", "Board"  };
     private Context context;
     private Project project;
+    private Fragment mCurrentFragment;
+    private Fragment mLastFragment;
+    private int save_position;
 
     public ProjectDetailFragmentAdapter(FragmentManager fm, Context context, Project project) {
         super(fm);
         this.context = context;
         this.project = project;
-        if (project.getCurrentsprint() != null)
+        if (project.getCurrentsprint() != null) {
+            tabTitles[1] = "Backlog";
             tabTitles[2] = "Sprintboard";
+        }
+    }
 
+
+
+    public Fragment getCurrentFragment() {
+        return mCurrentFragment;
+    }
+
+    @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        mLastFragment = mCurrentFragment;
+        if (getCurrentFragment() != object) {
+            mCurrentFragment = ((Fragment) object);
+        }
+        if(save_position != position && mLastFragment != null &&  mLastFragment instanceof IssuesFragment)
+            ((IssuesFragment) mLastFragment).invalidate();
+
+        save_position = position;
+        super.setPrimaryItem(container, position, object);
     }
 
     public Object instantiateItem(ViewGroup container, int position) {
@@ -64,11 +87,7 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
                 d.putParcelable("project", project);
                 frag.setArguments(d);
                 return frag;
-            case 4:
-                frag = new IssueCreateFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
+
             default:
                 frag = new ProjectDetailFragment();
                 d.putParcelable("project", project);

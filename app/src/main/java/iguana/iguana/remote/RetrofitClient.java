@@ -1,5 +1,7 @@
 package iguana.iguana.remote;
 
+import com.google.gson.GsonBuilder;
+
 import iguana.iguana.app.MainActivity;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -27,7 +29,7 @@ public class RetrofitClient {
         Retrofit.Builder asd = new Retrofit.Builder();
         asd.baseUrl(baseUrl);
 
-        retrofit = asd.addConverterFactory(GsonConverterFactory.create())
+        retrofit = asd.addConverterFactory(GsonConverterFactory.create(new GsonBuilder().serializeNulls().create()))
                 .client(client)
                 .build();
 
