@@ -15,6 +15,10 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import iguana.iguana.R;
 import iguana.iguana.fragments.comment.CommentEditFragment;
 import iguana.iguana.fragments.timelog.TimelogEditFragment;
@@ -98,6 +102,19 @@ public class TimelogAdapter extends BaseAdapter<Timelog> {
             }
         }
     }
+
+    public void addAll(List<Timelog> list) {
+        items.addAll(list);
+        Comparator<Timelog> comp;
+        comp = new Comparator<Timelog>() {
+            @Override
+            public int compare(Timelog log1, Timelog log2) {
+                return log2.getCreatedAt().compareTo(log1.getCreatedAt());
+            }
+        };
+        Collections.sort(items, comp);
+    }
+
 
 
 }

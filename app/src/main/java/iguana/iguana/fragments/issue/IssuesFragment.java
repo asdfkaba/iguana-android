@@ -6,6 +6,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -154,7 +155,6 @@ public class IssuesFragment
             project = getArguments().getParcelable("project");
         if  (status == null)
             status = getArguments().getString("status");
-
 
         if (adapter == null) {
             progress = (ProgressBar) view.findViewById(R.id.progressBar);

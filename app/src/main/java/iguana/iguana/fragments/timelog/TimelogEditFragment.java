@@ -11,25 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import iguana.iguana.R;
-import iguana.iguana.app.MainActivity;
-import iguana.iguana.events.timelog_changed;
 import iguana.iguana.fragments.base.ApiFragment;
-import iguana.iguana.fragments.main.ConfirmFragment;
-import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
 import iguana.iguana.remote.apicalls.TimelogCalls;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 /**

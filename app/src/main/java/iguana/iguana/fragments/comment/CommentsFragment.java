@@ -34,7 +34,9 @@ import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
 import iguana.iguana.models.Issue;
 
+import iguana.iguana.models.Notification;
 import iguana.iguana.remote.apicalls.CommentCalls;
+import iguana.iguana.remote.apicalls.NotificationCalls;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -112,10 +114,15 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
         EventBus.getDefault().register(this);
         View view = getView();
         api = new CommentCalls(view);
+
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if(getArguments() != null)
             issue = getArguments().getParcelable("issue");
+
+        // clear  notifications for this issue;
+        NotificationCalls noti_api = new NotificationCalls(getView());
+        noti_api.deleteNotification(issue.getProjectShortName()+"-"+issue.getNumber());
 
         if (adapter == null) {
             progress.setVisibility(View.VISIBLE);

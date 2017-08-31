@@ -37,8 +37,6 @@ import retrofit2.Response;
 
 
 public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapter.OnViewHolderClick<Project>, ProjectAdapter.OnViewHolderLongClick<Project>{
-    private TextView mResponseTv;
-    private Context context;
     private ProjectAdapter adapter;
     private Project selected;
     private int selected_pos;

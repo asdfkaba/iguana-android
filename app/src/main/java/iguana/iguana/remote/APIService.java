@@ -4,6 +4,7 @@ import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
+import iguana.iguana.models.NotificationResult;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
 import iguana.iguana.models.Timelog;
@@ -77,6 +78,15 @@ public interface APIService {
     Call<ProjectResult> getProjects(
     );
 
+    @GET("api/notifications/")
+    Call<NotificationResult> getNotifications(
+    );
+
+    @DELETE("api/notifications/{issue}/")
+    Call<Object> deleteNotification(
+            @Path("issue") String issue
+            );
+
 
     @POST("api/projects/{name_short}/issues/")
     Call<Issue> createIssue(
@@ -129,10 +139,12 @@ public interface APIService {
     );
 
 
-    @GET("api/issues/{id}")
+    @GET("api/projects/{name_short}/issues/{number}")
     Call<Issue> getIssue(
-            @Path("id") long id
+            @Path("name_short") String name_short,
+            @Path("number") String number
     );
+
 
     @GET("api/issues/?archived=false")
     Call<IssueResult> getIssues(

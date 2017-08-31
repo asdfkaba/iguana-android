@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import iguana.iguana.events.new_token;
 import iguana.iguana.fragments.main.DashboardFragment;
 import iguana.iguana.R;
+import iguana.iguana.fragments.main.NotificationFragment;
 import iguana.iguana.fragments.main.SettingsFragment;
 import iguana.iguana.fragments.issue.IssueBaseFragment;
 import iguana.iguana.fragments.issue.IssueCreateFragment;
@@ -182,7 +183,10 @@ public class MainActivity extends Activity {
                         if (fragment instanceof TimelogsFragment) {
                             currentPosition = 3;
                             setActionBarTitle(currentPosition);
-
+                        }
+                        if (fragment instanceof NotificationFragment) {
+                            currentPosition = 4;
+                            setActionBarTitle(currentPosition);
                         }
                         if (fragment instanceof IssueCreateFragment) {
                             String project = ((IssueCreateFragment) fragment).getArguments().getString("project");
@@ -203,7 +207,8 @@ public class MainActivity extends Activity {
 
                         if (fragment instanceof IssueBaseFragment) {
                             Issue issue = ((IssueBaseFragment) fragment).getIssue();
-                            getActionBar().setTitle(issue.getProjectShortName() + "-" + issue.getNumber());
+                            if (issue != null)
+                                getActionBar().setTitle(issue.getProjectShortName() + "-" + issue.getNumber());
                         }
 
                         if (fragment instanceof IssueEditFragment) {
@@ -234,6 +239,9 @@ public class MainActivity extends Activity {
                 break;
             case 3:
                 fragment = new TimelogsFragment();
+                break;
+            case 4:
+                fragment = new NotificationFragment();
                 break;
             default:
                 fragment = new DashboardFragment();

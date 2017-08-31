@@ -67,7 +67,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
         int idx = -1;
         int i = 0;
         System.out.println(project + status);
-        for (Issue iss:this.items)   {
+        for (Issue iss : this.items) {
             if (iss.getProjectShortName().equals(item.getProjectShortName()) && iss.getNumber().equals(item.getNumber())) {
                 idx = i;
                 break;
@@ -75,60 +75,89 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
             i++;
         }
         boolean do_notify = false;
-        System.out.println(idx);
-        System.out.println(item.getAssignee());
-        System.out.println(curr_user);
 
-        System.out.println(item.getSprint());
-
-        if (idx >= 0 && project == null) {
-            if (item.getAssignee().contains(curr_user)) {
-                items.set(idx, item);
-                do_notify = true;
-            } else {
-                items.remove(idx);
-                notifyItemRemoved(idx);
-            }
-        } else if (idx == -1 &&  project == null) {
-            if (item.getAssignee().contains(curr_user)) {
-                items.add(item);
-                do_notify = true;
-            }
-        }
-
-        if (idx >= 0 && project != null && item.getProjectShortName().equals(project.getNameShort()) && status == null) {
-            if (project.getCurrentsprint() != null && item.getSprint() != null) {
-
-                items.remove(idx);
-                notifyItemRemoved(idx);
-            } else {
-                items.set(idx, item);
-                do_notify = true;
-            }
-        } else if (idx == -1 &&  project != null && item.getProjectShortName().equals(project.getNameShort()) && status == null) {
-                items.add(item);
-                do_notify=true;
-        }
-
-        if (idx >= 0 && project != null && item.getProjectShortName().equals(project.getNameShort()) && status.equals(item.getKanbancol())) {
-            if (item.getSprint() == null) {
-                items.remove(idx);
-                notifyItemRemoved(idx);
-            } else {
-                items.set(idx, item);
-                do_notify = true;
-            }
-        } else if (idx == -1 && project != null && item.getProjectShortName().equals(project.getNameShort()) && status.equals(item.getKanbancol())) {
-            items.add(item);
-            do_notify = true;
-        }
-
-        if (project != null && item.getProjectShortName().equals(project.getNameShort()) && !status.equals(item.getKanbancol())) {
+        // case user issue list;
+        if (project == null && status == null) {
             if (idx >= 0) {
-                items.remove(idx);
-                notifyItemRemoved(idx);
+                if (item.getAssignee().contains(curr_user)) {
+                    items.set(idx, item);
+                    do_notify = true;
+                } else {
+                    items.remove(idx);
+                    notifyItemRemoved(idx);
+                }
+            } else {
+                if (item.getAssignee().contains(curr_user)) {
+                    items.add(item);
+                    do_notify = true;
+                }
             }
         }
+
+        // case backlog
+        if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() != null) {
+            if (idx >= 0) {
+                if (item.getSprint() != null) {
+                    items.remove(idx);
+                    notifyItemRemoved(idx);
+                } else {
+                    items.set(idx, item);
+                    do_notify = true;
+                }
+            } else {
+                if (item.getSprint() == null) {
+                    items.add(item);
+                    do_notify = true;
+                }
+            }
+        }
+
+        // case issuelist (nosprint)
+        if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null) {
+            if (idx >= 0) {
+                    items.set(idx, item);
+                    do_notify = true;
+            }
+        }
+
+        // case column in sprintboard
+        if (project != null && status != null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() != null) {
+            if (idx >= 0) {
+                if (item.getKanbancol().equals(status)) {
+                    if (item.getSprint() != null) {
+                        items.set(idx, item);
+                        do_notify = true;
+                    } else {
+                        items.remove(idx);
+                        notifyItemRemoved(idx);
+                    }
+                }
+            } else {
+                if (item.getKanbancol().equals(status)) {
+                    items.add(item);
+                    do_notify = true;
+                }
+            }
+        }
+
+        // case column in board
+        if (project != null && status != null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null) {
+            if (idx >= 0) {
+                if (item.getKanbancol().equals(status)) {
+                    items.set(idx, item);
+                    do_notify = true;
+                } else {
+                    items.remove(idx);
+                    notifyItemRemoved(idx);
+                }
+            } else {
+                if (item.getKanbancol().equals(status)) {
+                    items.add(item);
+                    do_notify = true;
+                }
+            }
+        }
+
         if (do_notify)
             do_notify();
     }
@@ -142,47 +171,6 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
 
     private int getIndex(List<String> cols, String status) {
         return cols.indexOf(status);
-    }
-
-    public BitmapDrawable writeOnDrawable(int drawableId, String text){
-
-        Bitmap bm = BitmapFactory.decodeResource(context.getResources(), drawableId).copy(Bitmap.Config.ARGB_8888, true);
-
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(20);
-
-        Canvas canvas = new Canvas(bm);
-        canvas.drawText(text, 0, bm.getHeight()/2, paint);
-
-        return new BitmapDrawable(bm);
-    }
-
-
-    private Drawable createMarkerIcon(Drawable backgroundImage, String text,
-                                      int width, int height) {
-
-        Bitmap canvasBitmap = Bitmap.createBitmap(width, height,
-                Bitmap.Config.ARGB_8888);
-        // Create a canvas, that will draw on to canvasBitmap.
-        Canvas imageCanvas = new Canvas(canvasBitmap);
-
-        // Set up the paint for use with our Canvas
-        Paint imagePaint = new Paint();
-        imagePaint.setTextAlign(Paint.Align.CENTER);
-        imagePaint.setTextSize(16f);
-
-        // Draw the image to our canvas
-        backgroundImage.draw(imageCanvas);
-
-        // Draw the text on top of our image
-        imageCanvas.drawText(text, width / 2, height / 2, imagePaint);
-
-        // Combine background and text to a LayerDrawable
-        LayerDrawable layerDrawable = new LayerDrawable(
-                new Drawable[]{backgroundImage, new BitmapDrawable(canvasBitmap)});
-        return layerDrawable;
     }
 
     @Override
@@ -203,8 +191,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
             Button sprint_remove = (Button) viewHolder.getView(R.id.sprint_minus);
             Space space = (Space) viewHolder.getView(R.id.space);
             LinearLayout issue_buttons = (LinearLayout) viewHolder.getView(R.id.issue_buttons);
-
-
+            
             if (item.isSelected()) {
                 issue_buttons.setVisibility(View.VISIBLE);
                 edit.setVisibility(View.VISIBLE);
@@ -235,8 +222,6 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                     left.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            view.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.recycler_view).setVisibility(View.GONE);
                             HashMap body = new HashMap();
                             body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) -1 ));
                             api.patchIssue(issue, body);
@@ -246,8 +231,6 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                     right.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            view.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.recycler_view).setVisibility(View.GONE);
                             System.out.println("CLICK");
                             HashMap body = new HashMap();
                             body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) + 1 ));
@@ -262,8 +245,6 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                     sprint_add.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            view.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.recycler_view).setVisibility(View.GONE);
                             System.out.println("CLICK");
                             HashMap body = new HashMap();
                             body.put("sprint", project.getCurrentsprint().toString().split("-")[1]);
@@ -277,8 +258,6 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                     sprint_remove.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            view.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.recycler_view).setVisibility(View.GONE);
                             System.out.println("CLICK");
                             HashMap body = new HashMap();
                             body.put("sprint", null);

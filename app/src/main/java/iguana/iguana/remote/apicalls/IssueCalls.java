@@ -17,7 +17,9 @@ import java.util.Map;
 import iguana.iguana.R;
 import iguana.iguana.adapters.IssueAdapter;
 import iguana.iguana.app.MainActivity;
+import iguana.iguana.events.issue_arrived;
 import iguana.iguana.events.issue_changed;
+import iguana.iguana.fragments.issue.IssueBaseFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.IssueResult;
 import iguana.iguana.models.Project;
@@ -238,6 +240,23 @@ public class IssueCalls {
 
             @Override
             public void onFailure(Call<Issue> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    public void getIssue(String name_short, String number) {
+        get_api_service(rootView).getIssue(name_short, number).enqueue(new Callback<Issue>() {
+            @Override
+            public void onResponse(Call<Issue> call, Response<Issue> response) {
+                EventBus.getDefault().postSticky(new issue_arrived(response.body()));
+            }
+
+            @Override
+            public void onFailure(Call<Issue> call, Throwable t) {
+                rootView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+                rootView.findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
+                Toast.makeText(rootView.getContext(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
                 t.printStackTrace();
             }
         });
