@@ -52,8 +52,8 @@ public class IssuesFragment
 
     public void update() {
         if (adapter != null) {
-            Boolean new_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "") + (status != null ? "board": "!!!"), false);
-            String new_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : "") + (status != null ? "board": "!!!"), "number");
+            Boolean new_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : ""), false);
+            String new_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : ""), "number");
             if (new_reverse != adapter_reverse || new_order != adapter_order) {
                 adapter_order = new_order;
                 adapter_reverse = new_reverse;
@@ -66,16 +66,7 @@ public class IssuesFragment
 
     @Override
     public void onClick(View view, int position, Issue item) {
-        FragmentManager frag = ((Activity)view.getContext()).getFragmentManager();
-        IssueBaseFragment fragment= new IssueBaseFragment();
-        Bundle d = new Bundle();
-        d.putParcelable("issue", item);
-        fragment.setArguments(d);
-        FragmentTransaction ft = frag.beginTransaction();
-        ft.replace(R.id.content_frame, fragment, "visible_fragment");
-        ft.addToBackStack("visible_fragment");
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+        calls.IssueBase(item);
     }
 
     public boolean onLongClick(View view, int position, Issue item) {
@@ -153,14 +144,15 @@ public class IssuesFragment
 
         if (project == null)
             project = getArguments().getParcelable("project");
+        System.out.println(project);
         if  (status == null)
             status = getArguments().getString("status");
 
         if (adapter == null) {
             progress = (ProgressBar) view.findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
-            adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), false);
-            adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), "number");
+            adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!"), false);
+            adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : "!!!"), "number");
             adapter = new IssueAdapter(getActivity(), this, this, project, status, view);
             adapter.set_order(adapter_order);
             adapter.set_reverse(adapter_reverse);
@@ -215,8 +207,6 @@ public class IssuesFragment
         super.onCreateOptionsMenu(menu, inflater);
         if(getUserVisibleHint()) {
             menu.findItem(R.id.menuSort).setVisible(true);
-            System.out.println(adapter_order + adapter_reverse);
-            System.out.println(this + this.status);
             if (adapter != null) {
                 set_menu_items(menu, adapter_order, adapter_reverse);
             }
@@ -236,15 +226,7 @@ public class IssuesFragment
         switch (item.getItemId()) {
             // create new issue; start IssueCreateFragment
             case R.id.add:
-                IssueCreateFragment fragment= new IssueCreateFragment();
-                Bundle d = new Bundle();
-                d.putParcelable("project", project);
-                fragment.setArguments(d);
-                FragmentTransaction ft = getParentFragment().getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_frame, fragment, "visible_fragment");
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                calls.IssueCreate(project);
                 return true;
             // set adapter order type; notify_adapter to reorder
             case R.id.menuSortTitle:
@@ -292,9 +274,8 @@ public class IssuesFragment
             default:
                 return super.onOptionsItemSelected(item);
         }
-        System.out.println("issue_list_order" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"));
-        editor.putString("issue_list_order" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), adapter_order);
-        editor.putBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!") + (status != null ? "board": "!!!"), adapter_reverse);
+        editor.putString("issue_list_order" + (project != null ? project.getNameShort() : "!!!"), adapter_order);
+        editor.putBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!"), adapter_reverse);
         editor.commit();
         return true;
     }

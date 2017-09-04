@@ -26,16 +26,10 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
     private Project project;
     private Fragment mCurrentFragment;
     private Fragment mLastFragment;
-
-    private int refresh;
     private int save_position;
 
     public Fragment getCurrentFragment() {
         return mCurrentFragment;
-    }
-
-    public void setRefresh() {
-        refresh = 0;
     }
 
     @Override
@@ -58,13 +52,12 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
         this.project = project;
         this.tabTitles = project.getKanbancol().toArray(new String[0]);
         this.PAGE_COUNT = project.getKanbancol().size();
-        this.refresh = -1;
+        System.out.println(project.getKanbancol());
     }
 
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
         ((IssuesFragment) createdFragment).invalidate();
-        System.out.println(position);
         return createdFragment;
     }
 
@@ -86,20 +79,14 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
                 frag.setArguments(d);
                 return frag;
         }
-
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
         return tabTitles[position];
     }
 
     public int getItemPosition(Object object) {
-
-            // POSITION_NONE means something like: this fragment is no longer valid
-            // triggering the ViewPager to re-build the instance of this fragment.
             return POSITION_NONE;
-
     }
 }

@@ -32,15 +32,10 @@ import retrofit2.Response;
  * Created by moritz on 27.08.17.
  */
 
-public class IssueCalls {
-    private View rootView;
+public class IssueCalls extends ApiCalls{
 
     public IssueCalls(View view) {
-        this.rootView = view;
-    }
-
-    private APIService get_api_service(View view) {
-        return ((MainActivity) view.getContext()).get_api_service();
+        super(view);
     }
 
     public void getProjectIssues(Project proj, Integer pa, IssueAdapter ada, String statu) {
@@ -61,7 +56,6 @@ public class IssueCalls {
         else if (project.getCurrentsprint() != null)
             options.put("sprint__isnull", "true");
 
-        System.out.println(options);
 
         get_api_service(view).getProjectIssues(project.getNameShort(), options).enqueue(new Callback<IssueResult>() {
             @Override

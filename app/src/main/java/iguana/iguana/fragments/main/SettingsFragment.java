@@ -1,5 +1,6 @@
 package iguana.iguana.fragments.main;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -131,8 +132,10 @@ public class SettingsFragment extends Fragment {
                                                                                        ((MainActivity) getActivity()).reinit_api_service();
 
                                                                                        Toast.makeText(getActivity(), "Successfully connected", Toast.LENGTH_SHORT).show();
-                                                                                       getFragmentManager().popBackStack();
-
+                                                                                       FragmentManager fm = getActivity().getFragmentManager();
+                                                                                       for(int i = 0; i < fm.getBackStackEntryCount()-1; ++i) {
+                                                                                           fm.popBackStack();
+                                                                                       }
 
                                                                                    } else {
                                                                                        EditText user = (EditText) getView().findViewById(R.id.user);

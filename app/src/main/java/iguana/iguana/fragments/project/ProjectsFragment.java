@@ -42,7 +42,6 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
     private int selected_pos;
     private ProjectCalls api;
 
-
     public ProjectsFragment() {}
 
     @Override
@@ -69,15 +68,7 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
 
     @Override
     public void onClick(View view, int position, Project item) {
-        ProjectBaseFragment fragment = new ProjectBaseFragment();
-        Bundle d = new Bundle();
-        d.putParcelable("project", item);
-        fragment.setArguments(d);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, fragment, "visible_fragment");
-        ft.addToBackStack("visible_fragment");
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+        calls.ProjectBase(item);
     }
 
     @Override
@@ -155,12 +146,7 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
-                ProjectCreateFragment fragment= new ProjectCreateFragment();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_frame, fragment, "visible_fragment");
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                calls.ProjectCreate();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

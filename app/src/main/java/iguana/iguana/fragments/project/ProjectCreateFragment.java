@@ -62,7 +62,6 @@ public class ProjectCreateFragment extends ApiFragment {
         }
     }
 
-
     @Override
     public void onStart() {
         super.onStart();

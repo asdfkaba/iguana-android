@@ -63,11 +63,9 @@ public class NotificationAdapter extends BaseAdapter<Notification> {
         types.setLines(unique.size());
         for (String key : unique) {
             if (key.equals("NewIssue"))
-                issue.append(" NEW ISSUE");
+                viewHolder.getView(R.id.new_issue).setVisibility(View.VISIBLE);
             else
                 types.append(key + ": "+ Collections.frequency(item.getType(), key)+ System.getProperty("line.separator"));
         }
-
-
     }
 }

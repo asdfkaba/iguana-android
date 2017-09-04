@@ -69,7 +69,6 @@ public class IssueEditFragment extends ApiFragment {
         if (savedInstanceState != null && issue == null) {
                 issue = savedInstanceState.getParcelable("issue");
                 project = savedInstanceState.getParcelable("project");
-
         }
     }
 

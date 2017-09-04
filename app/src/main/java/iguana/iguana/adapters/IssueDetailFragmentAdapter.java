@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
+import iguana.iguana.app.MainActivity;
+import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.fragments.comment.CommentsFragment;
 import iguana.iguana.fragments.issue.IssueDetailFragment;
 import iguana.iguana.fragments.issue.IssuesFragment;
+import iguana.iguana.fragments.main.DashboardFragment;
 import iguana.iguana.fragments.timelog.TimelogsFragment;
 import iguana.iguana.models.Issue;
 
@@ -44,9 +47,7 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
             if (mLastFragment instanceof CommentsFragment)
                 ((CommentsFragment) mLastFragment).invalidate();
         }
-
         save_position = position;
-
         super.setPrimaryItem(container, position, object);
     }
 
@@ -59,26 +60,21 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Fragment frag;
-        Bundle d = new Bundle();
         switch (position) {
             case 0:
                 frag = new IssueDetailFragment();
-                d.putParcelable("issue", issue);
-                frag.setArguments(d);
-                return frag;
+                break;
             case 1:
                 frag = new CommentsFragment();
-                d.putParcelable("issue", issue);
-                frag.setArguments(d);
-                return frag;
+                break;
             case 2:
                 frag = new TimelogsFragment();
-                d.putParcelable("issue", issue);
-                frag.setArguments(d);
-                return frag;
-
+                break;
+            default:
+                frag = new DashboardFragment();
+                break;
         }
-        frag = new IssueDetailFragment();
+        Bundle d = new Bundle();
         d.putParcelable("issue", issue);
         frag.setArguments(d);
         return frag;
@@ -86,15 +82,10 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
         return tabTitles[position];
     }
 
     public int getItemPosition(Object object) {
-
-            // POSITION_NONE means something like: this fragment is no longer valid
-            // triggering the ViewPager to re-build the instance of this fragment.
             return POSITION_NONE;
-
     }
 }

@@ -64,22 +64,10 @@ public class BoardBaseFragment extends Fragment {
         return adapter;
     }
 
-    public void notify_adapters() {
-        adapter.setRefresh();
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_board_base, container, false);
-    }
-
-    private class OnTouch implements View.OnTouchListener
-    {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            return true;
-        }
     }
 
     @Override
@@ -89,6 +77,8 @@ public class BoardBaseFragment extends Fragment {
             project = getArguments().getParcelable("project");
 
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
+
+        System.out.println(project);
 
         adapter = new ProjectDetailFragmentAdapterBoard(getChildFragmentManager(), getActivity(), project);
         mViewPager.setAdapter(adapter);

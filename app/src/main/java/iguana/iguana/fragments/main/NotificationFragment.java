@@ -52,6 +52,7 @@ public class NotificationFragment extends ApiScrollFragment implements Notificat
     private int selected_pos;
     private NotificationCalls api;
     private IssueCalls issue_api;
+    private Notification clicked;
 
     public NotificationFragment() {}
 
@@ -59,6 +60,7 @@ public class NotificationFragment extends ApiScrollFragment implements Notificat
     public void onClick(View view, int position, Notification item) {
         String issue_str = item.getIssue();
         issue_str = issue_str.split(" ")[0];
+        clicked = item;
         issue_api.getIssue(issue_str.split("-")[0], issue_str.split("-")[1]);
         getView().findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.recycler_view).setVisibility(View.GONE);
@@ -72,7 +74,11 @@ public class NotificationFragment extends ApiScrollFragment implements Notificat
         IssueBaseFragment fragment= new IssueBaseFragment();
         Bundle d = new Bundle();
         d.putParcelable("issue", issue);
-        d.putBoolean("comments", true);
+        if (clicked.getType().size() == 1 && clicked.getType().get(0).equals("NewIssue"))
+            d.putBoolean("comments", false);
+        else
+            d.putBoolean("comments", true);
+
         fragment.setArguments(d);
         FragmentTransaction ft = frag.beginTransaction();
         ft.replace(R.id.content_frame, fragment, "issue_detail");

@@ -36,8 +36,6 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
         }
     }
 
-
-
     public Fragment getCurrentFragment() {
         return mCurrentFragment;
     }
@@ -55,11 +53,6 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
         super.setPrimaryItem(container, position, object);
     }
 
-    public Object instantiateItem(ViewGroup container, int position) {
-        Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-        return createdFragment;
-    }
-
 
     @Override
     public int getCount() {
@@ -70,44 +63,33 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         Fragment frag;
-        Bundle d = new Bundle();
         switch (position) {
             case 0:
                 frag = new ProjectDetailFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
+                break;
             case 1:
                 frag = new IssuesFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
+                break;
             case 2:
                 frag = new BoardBaseFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return frag;
-
+                break;
             default:
                 frag = new ProjectDetailFragment();
-                d.putParcelable("project", project);
-                frag.setArguments(d);
-                return new ProjectDetailFragment();
+                break;
         }
-
+        Bundle d = new Bundle();
+        d.putParcelable("project", project);
+        frag.setArguments(d);
+        System.out.println(frag);
+        return frag;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
         return tabTitles[position];
     }
 
     public int getItemPosition(Object object) {
-
-            // POSITION_NONE means something like: this fragment is no longer valid
-            // triggering the ViewPager to re-build the instance of this fragment.
             return POSITION_NONE;
-
     }
 }

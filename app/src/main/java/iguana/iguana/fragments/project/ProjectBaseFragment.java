@@ -16,10 +16,19 @@
 
 package iguana.iguana.fragments.project;
 
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.ClipData;
+import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.view.menu.ActionMenuItem;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -27,21 +36,19 @@ import android.widget.Adapter;
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapter;
 import iguana.iguana.common.view.SlidingTabLayout;
+import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
 
-/**
- * A basic sample which shows how to use {@link com.example.android.common.view.SlidingTabLayout}
- * to display a custom {@link ViewPager} title strip which gives continuous feedback to the user
- * when scrolling.
- */
+
 public class ProjectBaseFragment extends Fragment {
 
     private Project project;
     private SlidingTabLayout mSlidingTabLayout;
     private ProjectDetailFragmentAdapter adapter;
     private ViewPager mViewPager;
+    private FragmentCalls calls;
 
     public ProjectDetailFragmentAdapter getAdapter() {
         return adapter;
@@ -63,7 +70,30 @@ public class ProjectBaseFragment extends Fragment {
         }
     }
 
-    @Override
+    public void onStart() {
+        super.onStart();
+        calls = new FragmentCalls(getActivity());
+        setHasOptionsMenu(true);
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if (!project.getManager().contains(getActivity().getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null)))
+            return;
+
+        menu.findItem(R.id.edit_option).setVisible(true);
+        menu.findItem(R.id.edit_option).setTitle("Edit " + project.getNameShort());
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit_option:
+                calls.ProjectEdit(project);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+        @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_swipe_tabs_base, container, false);

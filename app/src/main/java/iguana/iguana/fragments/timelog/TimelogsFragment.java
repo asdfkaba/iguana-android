@@ -146,15 +146,7 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
-                TimelogCreateFragment fragment = new TimelogCreateFragment();
-                Bundle d = new Bundle();
-                d.putParcelable("issue", issue);
-                fragment.setArguments(d);
-                FragmentTransaction ft = getParentFragment().getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_frame, fragment, "visible_fragment");
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                calls.TimelogCreate(issue);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

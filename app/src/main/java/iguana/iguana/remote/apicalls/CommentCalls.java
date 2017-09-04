@@ -32,15 +32,12 @@ import retrofit2.Response;
  * Created by moritz on 27.08.17.
  */
 
-public class CommentCalls {
-    private View rootView;
+public class CommentCalls extends ApiCalls {
 
     public CommentCalls(View view) {
-        this.rootView = view;
+        super(view);
     }
-    private APIService get_api_service(View view) {
-        return ((MainActivity) view.getContext()).get_api_service();
-    }
+
 
     public void getComments(Integer pa, String proj, Integer iss_number, CommentAdapter ada) {
         final CommentAdapter adapter = ada;

@@ -1,9 +1,13 @@
 package iguana.iguana.fragments.issue;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,6 +25,7 @@ import iguana.iguana.events.comment_changed;
 import iguana.iguana.events.issue_arrived;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.rtoken_invalid;
+import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Token;
 import iguana.iguana.remote.ApiUtils;
@@ -33,6 +38,7 @@ public class IssueBaseFragment extends Fragment {
     private SlidingTabLayout mSlidingTabLayout;
     private IssueDetailFragmentAdapter adapter;
     private ViewPager mViewPager;
+    private FragmentCalls calls;
 
     public Issue getIssue() {
         return this.issue;
@@ -49,6 +55,28 @@ public class IssueBaseFragment extends Fragment {
         if (savedInstanceState != null) {
             issue = savedInstanceState.getParcelable("issue");
         }
+    }
+
+    public void onStart() {
+        super.onStart();
+        calls = new FragmentCalls(getActivity());
+        setHasOptionsMenu(true);
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // show order by menu entry; set default order
+        super.onCreateOptionsMenu(menu, inflater);
+
+        menu.findItem(R.id.edit_option).setVisible(true);
+        menu.findItem(R.id.edit_option).setTitle("Edit " + issue.getProjectShortName()+"-"+issue.getNumber());
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit_option:
+                calls.IssueEdit(issue);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

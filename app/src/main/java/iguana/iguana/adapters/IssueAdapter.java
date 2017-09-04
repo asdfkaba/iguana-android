@@ -13,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ import iguana.iguana.models.Project;
 import iguana.iguana.remote.apicalls.IssueCalls;
 
 
-public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
+public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
     private CommonMethods common = new CommonMethods();
     private Project project;
     private String status;
@@ -115,8 +116,12 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
         // case issuelist (nosprint)
         if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null) {
             if (idx >= 0) {
-                    items.set(idx, item);
-                    do_notify = true;
+                items.set(idx, item);
+                do_notify = true;
+
+            } else {
+                items.add(item);
+                do_notify = true;
             }
         }
 
@@ -131,7 +136,11 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                         items.remove(idx);
                         notifyItemRemoved(idx);
                     }
+                } else {
+                    items.remove(idx);
+                    notifyItemRemoved(idx);
                 }
+
             } else {
                 if (item.getKanbancol().equals(status)) {
                     items.add(item);
@@ -191,7 +200,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
             Button sprint_remove = (Button) viewHolder.getView(R.id.sprint_minus);
             Space space = (Space) viewHolder.getView(R.id.space);
             LinearLayout issue_buttons = (LinearLayout) viewHolder.getView(R.id.issue_buttons);
-            
+
             if (item.isSelected()) {
                 issue_buttons.setVisibility(View.VISIBLE);
                 edit.setVisibility(View.VISIBLE);
@@ -214,7 +223,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                 if (status != null) {
                     if (project.getKanbancol().indexOf(issue.getKanbancol()) > 0)
                         left.setVisibility(View.VISIBLE);
-                    if (project.getKanbancol().indexOf(issue.getKanbancol()) < project.getKanbancol().size()-1 && project.getKanbancol().indexOf(issue.getKanbancol()) != -1)
+                    if (project.getKanbancol().indexOf(issue.getKanbancol()) < project.getKanbancol().size() - 1 && project.getKanbancol().indexOf(issue.getKanbancol()) != -1)
                         right.setVisibility(View.VISIBLE);
                     if (project.getCurrentsprint() == null)
                         space.setVisibility(View.GONE);
@@ -223,7 +232,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                         @Override
                         public void onClick(View v) {
                             HashMap body = new HashMap();
-                            body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) -1 ));
+                            body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) - 1));
                             api.patchIssue(issue, body);
                         }
                     });
@@ -233,7 +242,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy{
                         public void onClick(View v) {
                             System.out.println("CLICK");
                             HashMap body = new HashMap();
-                            body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) + 1 ));
+                            body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) + 1));
                             System.out.println(body);
                             api.patchIssue(issue, body);
                         }

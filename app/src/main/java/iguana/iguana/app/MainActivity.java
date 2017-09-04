@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +46,7 @@ import iguana.iguana.remote.APIService;
 import iguana.iguana.remote.ApiUtils;
 import iguana.iguana.events.rtoken_invalid;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
     private String[] titles;
     private ListView drawerList;
     private DrawerLayout drawerLayout;
@@ -91,9 +92,13 @@ public class MainActivity extends Activity {
     }
 
 
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(rtoken_invalid event) {
         Toast show = Toast.makeText(this, "Please relogin on your iguana server (settings)", Toast.LENGTH_LONG);
+        View progress = findViewById(R.id.progressBar);
+        if (progress != null)
+            progress.setVisibility(View.GONE);
         show.show();
     }
 
@@ -113,9 +118,9 @@ public class MainActivity extends Activity {
             if (ret == 2)
                 Toast.makeText(this, "Please login on your iguana server (settings)", Toast.LENGTH_SHORT).show();
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getActionBar().setElevation(0);
-        }
+
+        getSupportActionBar().setElevation(0);
+
         setContentView(R.layout.activity_main);
         titles = getResources().getStringArray(R.array.titles);
         drawerList = (ListView) findViewById(R.id.drawer);
@@ -150,8 +155,8 @@ public class MainActivity extends Activity {
             }
         };
         drawerLayout.setDrawerListener(drawerToggle);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         getFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
                     public void onBackStackChanged() {
@@ -189,31 +194,31 @@ public class MainActivity extends Activity {
                             setActionBarTitle(currentPosition);
                         }
                         if (fragment instanceof IssueCreateFragment) {
-                            String project = ((IssueCreateFragment) fragment).getArguments().getString("project");
-                            getActionBar().setTitle(project + " - new issue");
+                            Project project = ((IssueCreateFragment) fragment).getArguments().getParcelable("project");
+                            getSupportActionBar().setTitle(project.getNameShort() + " - new issue");
                         }
                         if (fragment instanceof SettingsFragment) {
-                            getActionBar().setTitle("Settings");
+                            getSupportActionBar().setTitle("Settings");
                         }
 
                         if (fragment instanceof ProjectCreateFragment) {
-                            getActionBar().setTitle("New project");
+                            getSupportActionBar().setTitle("New project");
                         }
 
                         if (fragment instanceof ProjectBaseFragment) {
                             Project project = ((ProjectBaseFragment) fragment).getProject();
-                            getActionBar().setTitle(project.getNameShort());
+                            getSupportActionBar().setTitle(project.getNameShort());
                         }
 
                         if (fragment instanceof IssueBaseFragment) {
                             Issue issue = ((IssueBaseFragment) fragment).getIssue();
                             if (issue != null)
-                                getActionBar().setTitle(issue.getProjectShortName() + "-" + issue.getNumber());
+                                getSupportActionBar().setTitle(issue.getProjectShortName() + "-" + issue.getNumber());
                         }
 
                         if (fragment instanceof IssueEditFragment) {
                             Issue issue = ((IssueEditFragment) fragment).getIssue();
-                            getActionBar().setTitle("Edit " + issue.getProjectShortName() + "-" + issue.getNumber());
+                            getSupportActionBar().setTitle("Edit " + issue.getProjectShortName() + "-" + issue.getNumber());
                         }
                         drawerList.setItemChecked(currentPosition, true);
                     }
@@ -290,7 +295,7 @@ public class MainActivity extends Activity {
         } else {
             title = titles[position];
         }
-        getActionBar().setTitle(title);
+        getSupportActionBar().setTitle(title);
     }
 
     @Override

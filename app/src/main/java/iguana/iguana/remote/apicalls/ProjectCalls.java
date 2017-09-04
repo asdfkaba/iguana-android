@@ -36,15 +36,12 @@ import retrofit2.Response;
  * Created by moritz on 27.08.17.
  */
 
-public class ProjectCalls {
-    private View rootView;
+public class ProjectCalls extends ApiCalls{
 
     public ProjectCalls(View view) {
-        this.rootView = view;
+        super(view);
     }
-    private APIService get_api_service(View view) {
-        return ((MainActivity) view.getContext()).get_api_service();
-    }
+
 
     public void createProject(HashMap body) {
         final View view = rootView;
@@ -57,15 +54,7 @@ public class ProjectCalls {
             @Override
             public void onResponse(Call<Project> call, Response<Project> response) {
                 if (response.isSuccessful()) {
-                    ProjectBaseFragment fragment = new ProjectBaseFragment();
-                    Bundle d = new Bundle();
-                    d.putParcelable("project", response.body());
-                    fragment.setArguments(d);
-                    FragmentTransaction ft = ((MainActivity) view.getContext()).getFragmentManager().beginTransaction();
-                    ft.replace(R.id.content_frame, fragment, "visible_fragment");
-                    ft.addToBackStack(null);
-                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                    ft.commit();
+                    calls.ProjectBase(response.body());
                 } else {
                     try {
                         JSONObject obj = new JSONObject(response.errorBody().string());

@@ -18,31 +18,43 @@
 
             <TextView
                 android:id="@+id/issue"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 />
+
+            <TextView
+                android:id="@+id/new_issue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_border"
+                android:padding="5sp"
+                android:text="NEW ISSUE"
+                android:visibility="gone"
+                android:textColor="#fff"
+                android:textSize="9dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true" />
+
             <TextView
                 android:id="@+id/types"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_below="@+id/issue"
-                android:layout_marginTop="5dp"
-                 />
+                android:layout_marginTop="5dp" />
 
 
             <ImageButton
                 android:id="@+id/delete"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
-                android:tint="@color/cardview_light_background"
-                android:src="@drawable/ic_edit_black_24dp"
-                android:visibility="gone"
+                android:layout_centerVertical="true"
                 android:background="@drawable/button_border"
-                />
+                android:src="@drawable/ic_edit_black_24dp"
+                android:tint="@color/cardview_light_background"
+                android:visibility="gone" />
 
         </RelativeLayout>
 

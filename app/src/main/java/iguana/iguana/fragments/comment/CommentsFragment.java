@@ -153,15 +153,7 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add:
-                CommentCreateFragment fragment = new CommentCreateFragment();
-                Bundle d = new Bundle();
-                d.putParcelable("issue", issue);
-                fragment.setArguments(d);
-                FragmentTransaction ft = getParentFragment().getFragmentManager().beginTransaction();
-                ft.replace(R.id.content_frame, fragment, "visible_fragment");
-                ft.addToBackStack(null);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                ft.commit();
+                calls.CommentCreate(issue);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

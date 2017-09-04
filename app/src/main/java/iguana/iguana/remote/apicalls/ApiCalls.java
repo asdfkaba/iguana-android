@@ -24,6 +24,7 @@ import iguana.iguana.adapters.TimelogAdapter;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.comment_changed;
 import iguana.iguana.events.project_changed;
+import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
@@ -42,6 +43,14 @@ import retrofit2.Response;
  */
 
 public class ApiCalls {
+    protected FragmentCalls calls;
+    protected View rootView;
+
+    public ApiCalls(View view) {
+        this.rootView = view;
+        this.calls = new FragmentCalls(((MainActivity) view.getContext()));
+    }
+
 
     protected APIService get_api_service(View view) {
         return ((MainActivity) view.getContext()).get_api_service();
