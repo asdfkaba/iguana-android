@@ -53,7 +53,8 @@ public class IssueBaseFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            issue = savedInstanceState.getParcelable("issue");
+            if (issue == null)
+                issue = savedInstanceState.getParcelable("issue");
         }
     }
 

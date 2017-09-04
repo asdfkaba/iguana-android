@@ -15,7 +15,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import iguana.iguana.R;
 
-public class ApiScrollFragment extends ApiFragment {
+public class ApiScrollFragment extends BaseFragment {
     protected int scroll_y;
     protected RecyclerView recyclerView;
     protected int current_page;
