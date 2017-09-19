@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v13.app.FragmentStatePagerAdapter;
 import android.view.ViewGroup;
 
 import iguana.iguana.app.MainActivity;
@@ -28,10 +29,16 @@ public class IssueDetailFragmentAdapter extends FragmentPagerAdapter {
     private Fragment mLastFragment;
     private Fragment mCurrentFragment;
     private int save_position;
+    private FragmentManager fm;
 
     public IssueDetailFragmentAdapter(FragmentManager fm, Context context, Issue issue) {
         super(fm);
         this.context = context;
+        this.issue = issue;
+        this.fm = fm;
+    }
+
+    public void set_issue(Issue issue) {
         this.issue = issue;
     }
 

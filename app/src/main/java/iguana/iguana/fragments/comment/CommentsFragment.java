@@ -126,7 +126,7 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
 
         if (adapter == null) {
             progress.setVisibility(View.VISIBLE);
-            adapter = new CommentAdapter(getActivity(), this, this);
+            adapter = new CommentAdapter(getActivity(), this, this, issue);
             api.getComments(current_page, issue.getProjectShortName(), issue.getNumber(),  adapter);
         }
 
@@ -177,7 +177,7 @@ public class CommentsFragment extends ApiScrollFragment implements CommentAdapte
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        recyclerView.setAdapter(new CommentAdapter(getActivity(), this, this));
+        recyclerView.setAdapter(new CommentAdapter(getActivity(), this, this, null));
         return rootView;
     }
 

@@ -23,7 +23,7 @@ import java.util.Iterator;
 import iguana.iguana.R;
 import iguana.iguana.events.comment_changed;
 import iguana.iguana.events.project_changed;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.remote.apicalls.CommentCalls;
@@ -31,7 +31,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CommentEditFragment extends ApiFragment {
+public class CommentEditFragment extends BaseFragment {
     private EditText text;
     private Comment comment;
     private CommentCalls api;

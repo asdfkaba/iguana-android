@@ -35,7 +35,7 @@
             app:layout_constraintTop_toBottomOf="@+id/project_name" />
 
 
-        <TextView
+        <us.feras.mdv.MarkdownView
             android:id="@+id/project_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,6 +43,13 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/project_name_bottom_line" />
 
+        <TextView
+            android:id="@+id/members"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/project_description" />
 
 
     </android.support.constraint.ConstraintLayout>

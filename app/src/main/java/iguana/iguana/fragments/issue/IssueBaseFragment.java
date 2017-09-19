@@ -58,8 +58,26 @@ public class IssueBaseFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(issue_changed event) {
+        Issue new_issue = event.getIssue();
+        if (issue.getNumber().equals(new_issue.getNumber()) && issue.getProjectShortName().equals(new_issue.getProjectShortName()))
+            issue = new_issue;
+            adapter.set_issue(issue);
+
+    }
+
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
+
         calls = new FragmentCalls(getActivity());
         setHasOptionsMenu(true);
     }

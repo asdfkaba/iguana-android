@@ -1,11 +1,13 @@
 package iguana.iguana.app;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,13 +23,24 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.HashMap;
+
+import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.new_token;
+import iguana.iguana.events.project_changed;
 import iguana.iguana.fragments.main.DashboardFragment;
 import iguana.iguana.R;
 import iguana.iguana.fragments.main.NotificationFragment;
@@ -39,12 +52,22 @@ import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.fragments.project.ProjectCreateFragment;
 import iguana.iguana.fragments.project.ProjectsFragment;
+import iguana.iguana.fragments.timelog.TimelogCreateFragment;
 import iguana.iguana.fragments.timelog.TimelogsFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
+import iguana.iguana.models.Token;
 import iguana.iguana.remote.APIService;
 import iguana.iguana.remote.ApiUtils;
 import iguana.iguana.events.rtoken_invalid;
+import iguana.iguana.remote.ProjectWebsocketListener;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+import retrofit2.Call;
 
 public class MainActivity extends AppCompatActivity {
     private String[] titles;
@@ -54,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter menuAdapter;
     private int currentPosition = 0;
     private APIService mAPIService;
+    private OkHttpClient client;
+    private WebSocketListener sock_listener;
+    private WebSocket ws;
+
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
@@ -62,10 +89,64 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
     public String get_user() {
         return getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment curr = null;
+        if (getFragmentManager().getBackStackEntryCount() > 0)
+            curr = getFragmentManager().findFragmentByTag(getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount() - 1).getName());
+        View view;
+        if (curr != null && curr instanceof ProjectBaseFragment)
+            view = ((ProjectBaseFragment) curr).getAdapter().getVisibleView();
+        else
+            view = getCurrentFocus();
+        if (view.getId() != R.id.bottomsheet)
+            view = view.findViewById(R.id.bottomsheet);
+        System.out.println(view);
+        if (view != null) {
+            if (((BottomSheetLayout) view).isSheetShowing()) {
+                ((BottomSheetLayout) view).dismissSheet();
+                return;
+            }
+        }
+        super.onBackPressed();
+    }
+
+    public String refresh_token(){
+        HashMap body = new HashMap<>();
+        SharedPreferences sharedPref = getSharedPreferences("api", Context.MODE_PRIVATE);
+        String refresh_token =  sharedPref.getString("api_refresh_token", "");
+        String url =  sharedPref.getString("api_url", "");
+        if (url == null || url.length() == 0)
+            return null;
+        body.put("refresh_token", refresh_token);
+        body.put("client_id", "iguana");
+        body.put("api_type", "iguana");
+        body.put("grant_type", "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer");
+        SharedPreferences.Editor editor = sharedPref.edit();
+        Call<Token> result = ApiUtils.getAPIService(url, null, null).refreshToken(body);
+        retrofit2.Response<Token> response = null;
+        try {
+            response = result.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (response == null)
+            return null;
+        if (response.isSuccessful()) {
+            editor.putString("api_token", response.body().getToken());
+            editor.putString("api_refresh_token", response.body().getRefreshToken());
+            editor.commit();
+            init_socket();
+        } else {
+            EventBus.getDefault().post(new rtoken_invalid("TEST,TEST"));
+            return null;
+        }
+        reinit_api_service();
+        return response.body().getToken();
     }
 
 
@@ -80,15 +161,37 @@ public class MainActivity extends AppCompatActivity {
     public int reinit_api_service() {
         String token = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_token", null);
         String url = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_url", null);
+        String user = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null);
+
         if (token == null && url == null) {
             this.mAPIService = null;
             return 1;
         } else if (token == null) {
             this.mAPIService = ApiUtils.getAPIService(url, token, this);
             return 2;
+        } else {
+            this.mAPIService = ApiUtils.getAPIService(url, token, this);
+            return 0;
+
         }
-        this.mAPIService = ApiUtils.getAPIService(url, token, this);
-        return 0;
+    }
+
+    public void init_socket() {
+        String token = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_token", null);
+        String url = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_url", null);
+        String user = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null);
+        String host = null;
+        if (url != null) {
+             host = url.split("//")[1];
+        }
+        if (host != null && token != null && user != null) {
+            String websocket_url = "ws://"+host+user+"/?token=" + token;
+            System.out.println(websocket_url);
+            Request request = new Request.Builder().url(websocket_url).build();
+            if (ws != null)
+                ws.close(1000, null);
+            ws = client.newWebSocket(request, sock_listener);
+        }
     }
 
 
@@ -105,12 +208,28 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(new_token event) {
         reinit_api_service();
+        init_socket();
+    }
+
+    protected void onDestroy() {
+        if (ws != null) {
+            ws.close(1000, null);
+        }
+        super.onDestroy();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         JodaTimeAndroid.init(this);
+        String api_url = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_url", null);
+        String token = getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_token", null);
+        if (client == null)
+            client = new OkHttpClient();
+        if (sock_listener == null)
+            sock_listener =  new ProjectWebsocketListener(this);
+
+        init_socket();
         if (mAPIService == null) {
             int ret = reinit_api_service();
             if (ret == 1)
@@ -189,6 +308,7 @@ public class MainActivity extends AppCompatActivity {
                             currentPosition = 3;
                             setActionBarTitle(currentPosition);
                         }
+
                         if (fragment instanceof NotificationFragment) {
                             currentPosition = 4;
                             setActionBarTitle(currentPosition);
@@ -203,6 +323,9 @@ public class MainActivity extends AppCompatActivity {
 
                         if (fragment instanceof ProjectCreateFragment) {
                             getSupportActionBar().setTitle("New project");
+                        }
+                        if (fragment instanceof TimelogCreateFragment) {
+                            getSupportActionBar().setTitle("Log time");
                         }
 
                         if (fragment instanceof ProjectBaseFragment) {

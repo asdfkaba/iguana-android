@@ -86,20 +86,21 @@ public class SettingsFragment extends BaseFragment {
 
                                         String possible_url = url.getText().toString();
 
-                                        if (!Pattern.matches("^https?://[^\\s/$.?#].[^\\s]*$", api_url)) {
+                                        if (!Pattern.matches("^https?://[^\\s/$.?#].[^\\s]*$", possible_url)) {
                                             url.setError("Not a valid url");
                                             return;
                                         }
-                                        save_preferences("api", "api_url", url.getText().toString());
                                         save_preferences("api", "api_user", user.getText().toString());
 
                                         ((MainActivity) getActivity()).reinit_api_service();
 
 
-                                        if (!api_url.substring(api_url.length() - 1).equals('/'))
+                                        if (!possible_url.substring(possible_url.length() - 1).equals('/'))
                                             possible_url += "/";
 
                                         final String api_url = possible_url;
+                                        save_preferences("api", "api_url", possible_url);
+
 
                                         HashMap body = new HashMap<>();
                                         body.put("username", user.getText().toString());

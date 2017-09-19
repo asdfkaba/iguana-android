@@ -27,7 +27,7 @@ import iguana.iguana.app.MainActivity;
 import iguana.iguana.common.view.MultipleSpinner;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.new_token;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
@@ -41,7 +41,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class IssueEditFragment extends ApiFragment {
+public class IssueEditFragment extends BaseFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
     private MultipleSpinner assignees;
@@ -119,7 +119,6 @@ public class IssueEditFragment extends ApiFragment {
                     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
-
                 String body_title = title.getText().toString();
                 String body_storypoints = storypoints.getText().toString();
                 String body_description = description.getText().toString();

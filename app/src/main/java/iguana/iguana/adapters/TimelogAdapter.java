@@ -28,9 +28,11 @@ import iguana.iguana.models.Timelog;
 
 
 public class TimelogAdapter extends BaseAdapter<Timelog> {
+    private Issue issue;
 
-    public TimelogAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener) {
+    public TimelogAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Issue issue) {
         super(context, listener, long_listener);
+        this.issue = issue;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class TimelogAdapter extends BaseAdapter<Timelog> {
         return view;
     }
 
-    public void replace_item(Timelog item, boolean deleted) {
+    public void replace_item(Timelog item, boolean deleted, String user) {
         int idx = -1;
         int i = 0;
         for (Timelog log:this.items)   {
@@ -59,8 +61,15 @@ public class TimelogAdapter extends BaseAdapter<Timelog> {
                 notifyItemChanged(idx);
             }
         }  else {
-            items.add(items.size(), item);
-            notifyItemInserted(items.size());
+            if (issue != null && issue.getNumber().equals(item.getIssueNumber()) && issue.getProjectShortName().equals(item.getNameShort())) {
+                items.add(0, item);
+                notifyDataSetChanged();
+            }
+            if (issue == null && item.getUser().equals(user)) {
+                items.add(0, item);
+                notifyDataSetChanged();
+            }
+
         }
     }
 

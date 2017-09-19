@@ -7,8 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+
+import iguana.iguana.R;
 import iguana.iguana.fragments.issue.IssueCreateFragment;
 import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.fragments.project.BoardBaseFragment;
@@ -34,13 +38,16 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
 
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        if (mLastFragment != null) {
+            BottomSheetLayout view = (BottomSheetLayout) mLastFragment.getView().findViewById(R.id.bottomsheet);
+            if (view != null && view.isSheetShowing())
+                view.dismissSheet();
+        }
         mLastFragment = mCurrentFragment;
         if (getCurrentFragment() != object) {
             mCurrentFragment = ((Fragment) object);
             ((IssuesFragment) mCurrentFragment).update();
         }
-        if(save_position != position && mLastFragment != null)
-            ((IssuesFragment) mLastFragment).invalidate();
 
         save_position = position;
         super.setPrimaryItem(container, position, object);
@@ -55,11 +62,6 @@ public class ProjectDetailFragmentAdapterBoard extends FragmentPagerAdapter {
         System.out.println(project.getKanbancol());
     }
 
-    public Object instantiateItem(ViewGroup container, int position) {
-        Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-        ((IssuesFragment) createdFragment).invalidate();
-        return createdFragment;
-    }
 
     @Override
     public int getCount() {

@@ -19,9 +19,12 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+repositories {
+    jcenter()
+}
 
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.google.code.gson:gson:2.8.0'
@@ -36,6 +39,9 @@ dependencies {
     compile 'net.danlew:android.joda:2.9.9'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'us.feras.mdv:markdownview:1.1.0'
-
+    compile 'com.jakewharton:butterknife:8.8.1'
+    compile 'com.github.bernaferrari.bottomsheet:bottomsheet-core:master-SNAPSHOT'
+    compile 'com.github.bernaferrari.bottomsheet:bottomsheet-commons:master-SNAPSHOT'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 
 }

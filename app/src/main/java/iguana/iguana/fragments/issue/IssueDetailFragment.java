@@ -8,9 +8,14 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
+import iguana.iguana.events.issue_changed;
 import iguana.iguana.models.Issue;
 import iguana.iguana.remote.APIService;
 import us.feras.mdv.MarkdownView;
@@ -25,41 +30,41 @@ public class IssueDetailFragment extends Fragment {
 
     public IssueDetailFragment() {}
 
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(issue_changed event) {
+        Issue new_issue = event.getIssue();
+        if (issue.getNumber().equals(new_issue.getNumber()) && issue.getProjectShortName().equals(new_issue.getProjectShortName())) {
+            this.issue = new_issue;
+            init();
+        }
+    }
+
     @Override
-    public void onStart() {
-        super.onStart();
-        View v = getView();
-        common = new CommonMethods();
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
 
-        if (issue == null)
-            issue = getArguments().getParcelable("issue");
-
-        View view = getView();
-        issue_short = (TextView) getView().findViewById(R.id.issue_short);
-        issue_short.append(issue.getProjectShortName()+"-"+issue.getNumber());
-
-        priority = (TextView) getView().findViewById(R.id.issue_priority);
-        priority.append(common.map_priority_to_string(issue.getPriority()));
-        title = (TextView) getView().findViewById(R.id.issue_title);
+    private void init() {
+        issue_short.setText(issue.getProjectShortName()+"-"+issue.getNumber());
+        priority.setText("Priority: "+ common.map_priority_to_string(issue.getPriority()));
         title.setText(issue.getTitle());
-        MarkdownView desc = (MarkdownView) getView().findViewById(R.id.issue_description);
         if (issue.getDescription().length() > 0) {
             desc.loadMarkdown(issue.getDescription());
         } else {
             desc.setVisibility(View.GONE);
             getView().findViewById(R.id.description_bottom_line).setVisibility(View.GONE);
         }
-        status = (TextView) getView().findViewById(R.id.issue_status);
-        status.append(issue.getKanbancol());
-        type = (TextView) getView().findViewById(R.id.issue_type);
-        type.append(issue.getType());
-        storypoints = (TextView) getView().findViewById(R.id.issue_storypoints);
-        storypoints.append(issue.getStorypoints().toString());
+        status.setText("Status: "+ issue.getKanbancol());
+        type.setText("Type: "+ issue.getType());
         assignee = (TextView) getView().findViewById(R.id.issue_assignees);
         if (issue.getAssignee().size() == 1) {
+            assignee.setText("");
             assignee.append(issue.getAssignee().get(0) + " is currently working on this issue.");
         }
         else if (issue.getAssignee().size() > 1) {
+            assignee.setText("");
             for (String user : issue.getAssignee()) {
                 assignee.append(user);
                 assignee.append(", ");
@@ -67,13 +72,30 @@ public class IssueDetailFragment extends Fragment {
             assignee.append("are currently working on this issue");
         }
         else {
+            assignee.setText("");
             assignee.append("Nobody is currently working on this issue");
         }
+    }
 
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+        View v = getView();
+        common = new CommonMethods();
 
+        if (issue == null)
+            issue = getArguments().getParcelable("issue");
 
+        issue_short = (TextView) getView().findViewById(R.id.issue_short);
+        priority = (TextView) getView().findViewById(R.id.issue_priority);
+        title = (TextView) getView().findViewById(R.id.issue_title);
+        desc = (MarkdownView) getView().findViewById(R.id.issue_description);
+        status = (TextView) getView().findViewById(R.id.issue_status);
+        type = (TextView) getView().findViewById(R.id.issue_type);
+        storypoints = (TextView) getView().findViewById(R.id.issue_storypoints);
+        assignee = (TextView) getView().findViewById(R.id.issue_assignees);
 
-
+        init();
     }
 
     @Override

@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import iguana.iguana.R;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Timelog;
 import iguana.iguana.remote.apicalls.TimelogCalls;
@@ -29,7 +29,7 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TimelogCreateFragment extends ApiFragment {
+public class TimelogCreateFragment extends BaseFragment {
     private EditText time;
     private Issue issue;
     private TimelogCalls api;

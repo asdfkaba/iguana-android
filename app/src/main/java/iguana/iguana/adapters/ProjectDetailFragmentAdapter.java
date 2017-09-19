@@ -5,8 +5,12 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.view.View;
 import android.view.ViewGroup;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+
+import iguana.iguana.R;
 import iguana.iguana.fragments.issue.IssueCreateFragment;
 import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.fragments.project.BoardBaseFragment;
@@ -40,14 +44,23 @@ public class ProjectDetailFragmentAdapter extends FragmentPagerAdapter {
         return mCurrentFragment;
     }
 
+    public View getVisibleView() {
+        if (mCurrentFragment instanceof BoardBaseFragment)
+            return ((BoardBaseFragment) mCurrentFragment).getAdapter().getCurrentFragment().getView();
+        return mCurrentFragment.getView();
+    }
+
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        if (mLastFragment != null) {
+            BottomSheetLayout view = (BottomSheetLayout) mLastFragment.getView().findViewById(R.id.bottomsheet);
+            if (view != null && view.isSheetShowing())
+                view.dismissSheet();
+        }
         mLastFragment = mCurrentFragment;
         if (getCurrentFragment() != object) {
             mCurrentFragment = ((Fragment) object);
         }
-        if(save_position != position && mLastFragment != null &&  mLastFragment instanceof IssuesFragment)
-            ((IssuesFragment) mLastFragment).invalidate();
 
         save_position = position;
         super.setPrimaryItem(container, position, object);

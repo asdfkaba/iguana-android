@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import iguana.iguana.models.Token;
+import iguana.iguana.models.UserResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -51,6 +52,11 @@ public interface APIService {
     @GET("api/projects/{name_short}/issues/?archived=false")
     Call<IssueResult> getProjectIssues(
             @Path("name_short") String name_short,
+            @QueryMap Map<String, String> options
+    );
+
+    @GET("api/users/")
+    Call<UserResult> getUsers(
             @QueryMap Map<String, String> options
     );
 

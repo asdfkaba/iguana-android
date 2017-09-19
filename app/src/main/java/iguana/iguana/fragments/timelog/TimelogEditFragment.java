@@ -14,7 +14,7 @@ import android.widget.EditText;
 import java.util.HashMap;
 
 import iguana.iguana.R;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.models.Timelog;
 import iguana.iguana.remote.apicalls.TimelogCalls;
 
@@ -22,7 +22,7 @@ import iguana.iguana.remote.apicalls.TimelogCalls;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TimelogEditFragment extends ApiFragment {
+public class TimelogEditFragment extends BaseFragment {
     private EditText time;
     private Timelog timelog;
     private TimelogCalls api;

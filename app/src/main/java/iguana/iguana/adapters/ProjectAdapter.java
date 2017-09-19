@@ -12,20 +12,34 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import iguana.iguana.R;
 import iguana.iguana.fragments.issue.IssueEditFragment;
 import iguana.iguana.fragments.project.ProjectEditFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
+import iguana.iguana.remote.ProjectWebsocketListener;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 
 
 public class ProjectAdapter extends BaseAdapter<Project> {
+    private HashMap<String, ProjectWebsocketListener>listeners;
+    private HashMap<String, WebSocket>sockets;
 
+    private OkHttpClient client;
+    private Context context;
 
     public ProjectAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener) {
         super(context, listener, long_listener);
+        this.client = new OkHttpClient();
+        this.context = context;
     }
+
 
     @Override
     protected View createView(Context context, ViewGroup viewGroup, int viewType) {
@@ -35,6 +49,7 @@ public class ProjectAdapter extends BaseAdapter<Project> {
     }
 
     public void replace_item(Project item, boolean deleted) {
+        System.out.println("PROJECT REPLACE_ITEM");
         int idx = -1;
         int i = 0;
         for (Project project:this.items)   {
@@ -49,6 +64,7 @@ public class ProjectAdapter extends BaseAdapter<Project> {
                 items.remove(idx);
                 notifyItemRemoved(idx);
             } else {
+                System.out.println("PROJECT REPLACE_ITEM item change");
                 items.set(idx, item);
                 notifyItemChanged(idx);
             }

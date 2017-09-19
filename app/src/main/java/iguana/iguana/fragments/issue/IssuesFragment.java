@@ -8,23 +8,29 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.flipboard.bottomsheet.commons.MenuSheetView;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
+import java.util.List;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.IssueAdapter;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.issue_changed;
 import iguana.iguana.fragments.base.ApiScrollFragment;
+import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.fragments.project.BoardBaseFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.models.Issue;
@@ -42,11 +48,12 @@ public class IssuesFragment
     private Project project;
     private String adapter_order = "number";
     private boolean adapter_reverse = false;
-    private Issue selected;
-    private int selected_pos;
     private IssueCalls api;
+    private FragmentCalls calls;
     private String status;
     private Menu menu;
+    protected BottomSheetLayout bottomSheetLayout;
+
 
     public IssuesFragment() {}
 
@@ -70,22 +77,7 @@ public class IssuesFragment
     }
 
     public boolean onLongClick(View view, int position, Issue item) {
-        if (selected == null ) {
-            selected = item;
-            selected_pos = position;
-            item.toggleSelected();
-        } else if (selected == item) {
-            item.toggleSelected();
-            selected = null;
-            selected_pos = -1;
-        } else {
-            selected.toggleSelected();
-            adapter.notifyItemChanged(selected_pos);
-            item.toggleSelected();
-            selected = item;
-            selected_pos = position;
-        }
-        adapter.notifyItemChanged(position);
+        showMenuSheet(MenuSheetView.MenuType.LIST, item);
         return true;
     }
 
@@ -113,20 +105,6 @@ public class IssuesFragment
             adapter.replace_item(event.getIssue(), ((MainActivity) getActivity()).get_user());
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        invalidate();
-    }
-
-    public void invalidate() {
-        if (selected != null) {
-            selected.toggleSelected();
-            selected = null;
-            adapter.notifyItemChanged(selected_pos);
-            selected_pos = -1;
-        }
-    }
 
     @Override
     public void onStop() {
@@ -134,11 +112,129 @@ public class IssuesFragment
         super.onStop();
     }
 
+    private void showMenuSheet(final MenuSheetView.MenuType menuType, Issue item) {
+        final Issue issue = item;
+        final String curr_user = ((MainActivity) getActivity()).get_user();
+        MenuSheetView menuSheetView =
+                new MenuSheetView(getActivity(), menuType, item.getProjectShortName()+"-" + item.getNumber()+ " " + item.getTitle(), new MenuSheetView.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (bottomSheetLayout.isSheetShowing()) {
+                            bottomSheetLayout.dismissSheet();
+                        }
+                        HashMap body = new HashMap();
+                        List<String> assignees, paricipants;
+                        switch(item.getItemId()) {
+                            case R.id.menu_issue_move_left_column:
+                                body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) - 1));
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_move_right_column:
+                                body.put("kanbancol", project.getKanbancol().get(project.getKanbancol().indexOf(issue.getKanbancol()) + 1));
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_add_to_sprint:
+                                body.put("sprint", project.getCurrentsprint().toString().split("-")[1]);
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_remove_from_sprint:
+                                body.put("sprint", null);
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_assign_to_me:
+                                assignees = issue.getAssignee();
+                                assignees.add(curr_user);
+                                body.put("assignee", assignees.toArray());
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_remove_from_me:
+                                assignees = issue.getAssignee();
+                                assignees.remove(curr_user);
+                                body.put("assignee", assignees.toArray());
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_unfollow:
+                                paricipants = issue.getParticipant();
+                                paricipants.remove(curr_user);
+                                System.out.println(paricipants.toString());
+                                body.put("participant", paricipants.toArray());
+
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_follow:
+                                paricipants = issue.getParticipant();
+                                paricipants.add(curr_user);
+                                body.put("participant", paricipants.toArray());
+                                api.patchIssue(issue, body);
+                                break;
+                            case R.id.menu_issue_edit:
+                                calls.IssueEdit(issue);
+                                break;
+                            case R.id.menu_issue_log_time:
+                                calls.TimelogCreate(issue);
+                                break;
+                        }
+
+
+                        return true;
+                    }
+                });
+        menuSheetView.inflateMenu(R.menu.menu_issue);
+        Menu menu = menuSheetView.getMenu();
+        menu.findItem(R.id.menu_issue_edit).setTitle("Edit "+item.getProjectShortName()+"-" + item.getNumber());
+
+        if (item.getAssignee().contains(curr_user))
+            menu.findItem(R.id.menu_issue_remove_from_me).setVisible(true);
+        else
+            menu.findItem(R.id.menu_issue_assign_to_me).setVisible(true);
+        if (item.getParticipant().contains(curr_user))
+            menu.findItem(R.id.menu_issue_unfollow).setVisible(true);
+        else
+            menu.findItem(R.id.menu_issue_follow).setVisible(true);
+
+
+        if (project != null && project.getCurrentsprint() != null) {
+            if (item.getSprint() != null && item.getSprint().equals(project.getCurrentsprint()))
+                menu.findItem(R.id.menu_issue_remove_from_sprint).setVisible(true);
+            else
+                menu.findItem(R.id.menu_issue_add_to_sprint).setVisible(true);
+        }
+        if(project != null && status != null) {
+            String curr_column = item.getKanbancol();
+            int idx = -1;
+
+            for (int i = 0; i < project.getKanbancol().size(); i++) {
+                if (project.getKanbancol().get(i).equals(item.getKanbancol())) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx > 0) {
+                MenuItem left = menu.findItem(R.id.menu_issue_move_left_column);
+                left.setTitle("Move to column " + project.getKanbancol().get(idx - 1));
+                left.setVisible(true);
+            }
+
+            if (idx >= 0 && idx < project.getKanbancol().size()-1) {
+                MenuItem right = menu.findItem(R.id.menu_issue_move_right_column);
+                right.setTitle("Move to column " + project.getKanbancol().get(idx + 1));
+                right.setVisible(true);
+            }
+        }
+        menuSheetView.updateMenu();
+        bottomSheetLayout.showWithSheetView(menuSheetView);
+    }
+
     public void onStart() {
         super.onStart();
+        calls = new FragmentCalls(getActivity());
         EventBus.getDefault().register(this);
         View view = getView();
         api = new IssueCalls(view);
+        bottomSheetLayout = (BottomSheetLayout) view.findViewById(R.id.bottomsheet);
+        bottomSheetLayout.setPeekOnDismiss(true);
+
+
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 

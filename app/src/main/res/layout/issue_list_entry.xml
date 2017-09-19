@@ -1,141 +1,90 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_margin="7dp"
+    android:background="@drawable/selector"
+    card_view:cardCornerRadius="5dp">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/card_view"
+
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_margin="7dp"
-        android:background="@drawable/selector"
-        card_view:cardCornerRadius="5dp">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintHorizontal_weight="9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/icon_group"/>
 
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:id="@+id/icon_group"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_width="0dp"
+            app:layout_constraintStart_toEndOf="@id/title"
+            android:gravity="right"
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp" />
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintBaseline_toBaselineOf="@id/title"
 
 
+            android:layout_height="wrap_content">
             <ImageView
-                android:id="@+id/priority"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_below="@+id/title"
-                android:padding="7dp" />
-
-
-            <TextView
-                android:id="@+id/project"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@+id/title"
-                android:layout_marginEnd="15dp"
-                android:padding="10dp" />
-
+                android:id="@+id/notification_icon"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_alignParentLeft="true"
+                android:tint="@color/iguana"
+                android:src="@drawable/ic_notifications_black_24dp"
+                android:visibility="gone"
+                />
+            <ImageView
+                android:id="@+id/assigned_icon"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_toRightOf="@id/notification_icon"
+                android:tint="@color/iguana"
+                android:src="@drawable/ic_star_black_24dp"
+                android:visibility="gone"
+                />
         </RelativeLayout>
 
-        <LinearLayout
-            android:id="@+id/issue_buttons"
-            android:layout_width="match_parent"
+        <ImageView
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+
+            android:id="@+id/priority"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_below="@+id/title"
+            />
+
+        <TextView
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            android:id="@+id/project"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|center_vertical"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:visibility="gone">
-
-            <ImageButton
-                android:id="@+id/left"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/button_border"
-                android:src="@drawable/ic_arrow_back_black_24dp"
-                android:tint="@color/cardview_light_background"
-                android:visibility="invisible"
-                />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"></Space>
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/title"
+            />
 
 
-            <ImageButton
-                android:id="@+id/edit"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/button_border"
-                android:gravity="center_horizontal|center_vertical"
-                android:src="@drawable/ic_edit_black_24dp"
-                android:tint="@color/cardview_light_background"
-                android:visibility="invisible" />
 
-            <Space
-                android:id="@+id/space"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"></Space>
-
-            <Button
-                android:id="@+id/sprint_plus"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/button_border"
-                android:drawablePadding="-5sp"
-                android:drawableTint="@color/cardview_light_background"
-                android:drawableTop="@drawable/ic_add_black_24dp"
-                android:gravity="center_horizontal|center_vertical"
-                android:paddingTop="6dp"
-                android:text="SPRINT"
-                android:textColor="@color/cardview_light_background"
-                android:textSize="12sp"
-                android:tint="#ffffff"
-                android:visibility="gone"></Button>
-
-
-            <Button
-                android:id="@+id/sprint_minus"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/button_border"
-                android:drawablePadding="-5sp"
-                android:drawableTint="@color/cardview_light_background"
-                android:drawableTop="@drawable/ic_remove_black_24dp"
-                android:gravity="center_horizontal|center_vertical"
-                android:paddingTop="6dp"
-                android:text="SPRINT"
-                android:textColor="@color/cardview_light_background"
-                android:textSize="12sp"
-                android:tint="#ffffff"
-                android:visibility="gone"></Button>
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"></Space>
-
-            <ImageButton
-                android:id="@+id/right"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/button_border"
-                android:gravity="center_horizontal|center_vertical"
-                android:src="@drawable/ic_arrow_forward_black_24dp"
-                android:tint="@color/cardview_light_background"
-                android:visibility="invisible" />
-
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
-
-</LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>

@@ -20,6 +20,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 import iguana.iguana.adapters.TimelogAdapter;
+import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.comment_changed;
 import iguana.iguana.events.timelog_changed;
 import iguana.iguana.fragments.base.ApiScrollFragment;
@@ -87,11 +88,11 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     @Override
     public void onClick(View view, int position, Timelog item) {}
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onMessageEvent(timelog_changed event) {
         timelog_changed stickyEvent = EventBus.getDefault().removeStickyEvent(timelog_changed.class);
         if (adapter != null && stickyEvent != null)
-            adapter.replace_item(event.getTimelog(), event.deleted());
+            adapter.replace_item(event.getTimelog(), event.deleted(), ((MainActivity) getActivity()).get_user());
     }
 
     @Override
@@ -112,7 +113,7 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
             issue = getArguments().getParcelable("issue");
 
         if (adapter == null) {
-            adapter = new TimelogAdapter(getActivity(), this, this);
+            adapter = new TimelogAdapter(getActivity(), this, this, issue);
             progress.setVisibility(View.VISIBLE);
             if (issue == null)
                 api.getTimelogs(current_page, adapter);
@@ -158,7 +159,7 @@ public class TimelogsFragment extends ApiScrollFragment implements TimelogAdapte
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        recyclerView.setAdapter(new TimelogAdapter(getActivity(), this, this));
+        recyclerView.setAdapter(new TimelogAdapter(getActivity(), this, this, issue));
         return rootView;
     }
 

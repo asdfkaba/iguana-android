@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.models.Project;
 import iguana.iguana.remote.APIService;
 import iguana.iguana.remote.apicalls.ProjectCalls;
@@ -33,7 +33,7 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProjectCreateFragment extends ApiFragment {
+public class ProjectCreateFragment extends BaseFragment {
     private EditText name;
     private EditText name_short;
     private EditText description;

@@ -28,14 +28,16 @@ import iguana.iguana.R;
 import iguana.iguana.fragments.comment.CommentEditFragment;
 import iguana.iguana.fragments.issue.IssueEditFragment;
 import iguana.iguana.models.Comment;
+import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
 
 
 public class CommentAdapter extends BaseAdapter<Comment> {
+    private Issue issue;
 
-
-    public CommentAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener) {
+    public CommentAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Issue issue) {
         super(context, listener, long_listener);
+        this.issue = issue;
     }
 
     @Override
@@ -55,6 +57,9 @@ public class CommentAdapter extends BaseAdapter<Comment> {
             }
             i++;
         }
+        System.out.println(idx);
+        System.out.println(issue.getNumber());
+
         if (idx >= 0) {
             if (deleted) {
                 items.remove(idx);
@@ -64,8 +69,15 @@ public class CommentAdapter extends BaseAdapter<Comment> {
                 notifyItemChanged(idx);
             }
         } else {
-            items.add(items.size(), item);
-            notifyItemInserted(items.size());
+            System.out.println("else");
+            System.out.println(item.getNameShort() + item.getIssueNumber());
+
+            if (issue.getNumber().equals(item.getIssueNumber()) && issue.getProjectShortName().equals(item.getNameShort())) {
+                System.out.println("if");
+                items.add(item);
+                notifyDataSetChanged();
+
+            }
         }
     }
 

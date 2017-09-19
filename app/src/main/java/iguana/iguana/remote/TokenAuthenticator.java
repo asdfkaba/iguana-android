@@ -28,41 +28,12 @@ public class TokenAuthenticator implements Authenticator {
         this.context = activity;
     }
 
-    public String refresh_token(){
-        HashMap body = new HashMap<>();
-        SharedPreferences sharedPref = context.getSharedPreferences("api", Context.MODE_PRIVATE);
-        String refresh_token =  sharedPref.getString("api_refresh_token", "");
-        String url =  sharedPref.getString("api_url", "");
-        body.put("refresh_token", refresh_token);
-        body.put("client_id", "iguana");
-        body.put("api_type", "iguana");
-        body.put("grant_type", "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer");
-        SharedPreferences.Editor editor = sharedPref.edit();
-        Call<Token> result = ApiUtils.getAPIService(url, null, null).refreshToken(body);
-        retrofit2.Response<Token> response = null;
-        try {
-            response = result.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (response == null)
-            return null;
-        if (response.isSuccessful()) {
-            editor.putString("api_token", response.body().getToken());
-            editor.putString("api_refresh_token", response.body().getRefreshToken());
-            editor.commit();
-        } else {
-            EventBus.getDefault().post(new rtoken_invalid("TEST,TEST"));
-            return null;
-        }
-        EventBus.getDefault().post(new new_token("New token!"));
-        return response.body().getToken();
-    }
+
 
 
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
-        credentials = refresh_token();
+        credentials = ((MainActivity) context).refresh_token();
         if(credentials == null)
             return null;
 

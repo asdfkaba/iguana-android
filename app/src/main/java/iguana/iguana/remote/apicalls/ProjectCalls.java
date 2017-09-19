@@ -100,6 +100,11 @@ public class ProjectCalls extends ApiCalls{
                     ((MainActivity) view.getContext()).getFragmentManager().popBackStack();
                 } else {
                     try {
+                        System.out.println(response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
                         JSONObject obj = new JSONObject(response.errorBody().string());
                         Iterator<?> keys = obj.keys();
                         while (keys.hasNext()) {
@@ -131,7 +136,6 @@ public class ProjectCalls extends ApiCalls{
         final Integer page = pa;
         final View view = rootView;
         final ProgressBar progress = (ProgressBar) view.findViewById(R.id.progressBar);
-
         Map options = new HashMap<String, String>();
         options.put("page", page);
         get_api_service(view).getProjects().enqueue(new Callback<ProjectResult>() {

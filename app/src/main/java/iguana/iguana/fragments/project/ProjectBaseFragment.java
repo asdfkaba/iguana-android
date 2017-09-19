@@ -33,9 +33,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapter;
 import iguana.iguana.common.view.SlidingTabLayout;
+import iguana.iguana.events.project_changed;
 import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.models.Issue;
@@ -70,8 +75,21 @@ public class ProjectBaseFragment extends Fragment {
         }
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    public void onMessageEvent(project_changed event) {
+        Project new_project = event.getProject();
+        if (new_project.getNameShort().equals(project.getNameShort()))
+            this.project = new_project;
+    }
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
         calls = new FragmentCalls(getActivity());
         setHasOptionsMenu(true);
     }

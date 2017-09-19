@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import iguana.iguana.remote.apicalls.ProjectCalls;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -92,10 +95,10 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-    @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onMessageEvent(project_changed event) {
-        project_changed stickyEvent = EventBus.getDefault().removeStickyEvent(project_changed.class);
-        if (adapter != null && stickyEvent != null)
+        System.out.println("proj list event");
+        if (adapter != null)
             adapter.replace_item(event.getProject(), event.deleted());
     }
     @Override
@@ -109,6 +112,7 @@ public class ProjectsFragment extends ApiScrollFragment implements ProjectAdapte
         EventBus.getDefault().register(this);
         View view = getView();
         api = new ProjectCalls(view);
+
 
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 

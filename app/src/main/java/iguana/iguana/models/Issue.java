@@ -271,7 +271,9 @@ public class Issue implements Parcelable{
         this.archived = archived;
     }
 
-    public String getProjectShortName() { return this.getUrl().split("/")[5];}
+    public String getProjectShortName() {
+        String [] split = this.getUrl().split("/");
+        return split[split.length-3];}
 
     public void toggleSelected() { this.isSelected = !this.isSelected; };
 

@@ -19,7 +19,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import iguana.iguana.R;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.adapters.BaseAdapter;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.remote.apicalls.CommentCalls;
@@ -31,7 +32,7 @@ import retrofit2.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class CommentCreateFragment extends ApiFragment {
+public class CommentCreateFragment extends BaseFragment {
     private EditText text;
     private Issue issue;
     private CommentCalls api;

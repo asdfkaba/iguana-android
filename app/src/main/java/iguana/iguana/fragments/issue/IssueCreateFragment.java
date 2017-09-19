@@ -18,7 +18,7 @@ import iguana.iguana.app.MainActivity;
 import iguana.iguana.R;
 import iguana.iguana.common.CommonMethods;
 import iguana.iguana.common.view.MultipleSpinner;
-import iguana.iguana.fragments.base.ApiFragment;
+import iguana.iguana.fragments.base.BaseFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
 import iguana.iguana.remote.APIService;
@@ -33,7 +33,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class IssueCreateFragment extends ApiFragment {
+public class IssueCreateFragment extends BaseFragment {
     private EditText title, storypoints, description, due_date;
     private Spinner priority, type;
     private MultipleSpinner assignees;
