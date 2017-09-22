@@ -17,6 +17,7 @@ import iguana.iguana.fragments.issue.IssueEditFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.fragments.project.ProjectCreateFragment;
 import iguana.iguana.fragments.project.ProjectEditFragment;
+import iguana.iguana.fragments.project.SprintBaseFragment;
 import iguana.iguana.fragments.timelog.TimelogCreateFragment;
 import iguana.iguana.fragments.timelog.TimelogsFragment;
 import iguana.iguana.models.Issue;
@@ -59,6 +60,13 @@ public class FragmentCalls {
         Bundle d = new Bundle();
         d.putParcelable("project", project);
         HandleFragmentCall(fragment, d, "project_base");
+    }
+
+    public void ProjectSprints(Project project) {
+        SprintBaseFragment fragment = new SprintBaseFragment();
+        Bundle d = new Bundle();
+        d.putParcelable("project", project);
+        HandleFragmentCall(fragment, d, "project_sprints");
     }
 
     public void IssueBase(Issue issue) {
@@ -106,10 +114,13 @@ public class FragmentCalls {
         HandleFragmentCall(fragment,d, "timelog_list");
     }
 
-    public void IssueCreate(Project project) {
+    public void IssueCreate(Project project, String sprint, String status, String viewpoint) {
         IssueCreateFragment fragment = new IssueCreateFragment();
         Bundle d = new Bundle();
         d.putParcelable("project", project);
+        d.putString("sprint", sprint);
+        d.putString("status", status);
+        d.putString("sprintview", viewpoint);
         HandleFragmentCall(fragment, d, "issue_create");
     }
 }

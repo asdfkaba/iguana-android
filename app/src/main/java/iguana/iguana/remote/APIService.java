@@ -7,6 +7,7 @@ import iguana.iguana.models.IssueResult;
 import iguana.iguana.models.NotificationResult;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
+import iguana.iguana.models.Sprint;
 import iguana.iguana.models.Timelog;
 import iguana.iguana.models.TimelogResult;
 
@@ -44,6 +45,12 @@ public interface APIService {
             @Body HashMap<String, Object> body
     );
 
+    @PATCH("api/projects/{name_short}/")
+    Call<Project> patchProject(
+            @Path("name_short") String name_short,
+            @Body HashMap<String, Object> body
+    );
+
     @DELETE("api/projects/{name_short}/")
     Call<Object> deleteProject(
             @Path("name_short") String name_short
@@ -71,6 +78,18 @@ public interface APIService {
             @Path("name_short") String name_short,
             @Path("issue_number") long issue_number,
             @Path("timelog_number") long timelog_number
+    );
+
+    @POST("api/projects/{name_short}/sprints/")
+    Call<Sprint> createSprint(
+            @Path("name_short") String name_short
+    );
+
+    @PATCH("api/projects/{name_short}/sprints/{sprint_number}/")
+    Call<Sprint> patchSprint(
+            @Path("name_short") String name_short,
+            @Path("sprint_number") String number,
+            @Body HashMap<String, Object> body
     );
 
     @DELETE("api/projects/{name_short}/issues/{issue_number}/timelogs/{timelog_number}/")

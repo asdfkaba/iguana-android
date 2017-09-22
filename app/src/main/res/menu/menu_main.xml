@@ -36,6 +36,27 @@
                 android:title="Reverse" />
         </menu>
     </item>
+     <item
+            android:id="@+id/sprints"
+            android:orderInCategory="100"
+            app:showAsAction="ifRoom"
+            android:title="Sprints"
+            android:visible="false"/>
+    <item
+        android:id="@+id/selectSprint"
+        app:showAsAction="ifRoom"
+        android:title="Change sprint"
+        android:visible="false">
+        <menu
+            android:id="@+id/sprintmenu">
+            <group
+                android:id="@+id/sprint_group"
+                android:checkableBehavior="single">
+
+            </group>
+
+        </menu>
+    </item>
 
     <item
         android:id="@+id/add"
@@ -54,4 +75,5 @@
         app:showAsAction="never"
         android:title=""
         android:visible="false"/>
+
 </menu>

@@ -51,13 +51,7 @@ public class ApiCalls {
         this.calls = new FragmentCalls(((MainActivity) view.getContext()));
     }
 
-
     protected APIService get_api_service(View view) {
         return ((MainActivity) view.getContext()).get_api_service();
     }
-
-
-
-
-
 }

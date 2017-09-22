@@ -3,6 +3,8 @@ package iguana.iguana.fragments.base;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.fragments.calls.FragmentCalls;
@@ -22,6 +24,16 @@ public class BaseFragment extends Fragment {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(key, value);
         editor.commit();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        View view = getActivity().getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public void onStart() {

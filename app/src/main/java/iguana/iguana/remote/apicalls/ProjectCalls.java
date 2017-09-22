@@ -23,6 +23,7 @@ import iguana.iguana.app.MainActivity;
 import iguana.iguana.common.view.MultipleSpinner;
 import iguana.iguana.events.project_changed;
 import iguana.iguana.events.timelog_changed;
+import iguana.iguana.fragments.calls.FragmentCalls;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.models.Project;
 import iguana.iguana.models.ProjectResult;
@@ -122,6 +123,26 @@ public class ProjectCalls extends ApiCalls{
 
                 }
 
+            }
+
+            @Override
+            public void onFailure(Call<Project> call, Throwable t) {
+                Toast.makeText(view.getContext(), "A problem occured, you can try again.\n Maybe there is a problem with your internet connection", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void patchProject(Project proj, HashMap body) {
+        final View view = rootView;
+
+        get_api_service(view).patchProject(proj.getNameShort(), body).enqueue(new Callback<Project>() {
+            @Override
+            public void onResponse(Call<Project> call, Response<Project> response) {
+                if (response.isSuccessful()) {
+
+                } else {
+
+                }
             }
 
             @Override

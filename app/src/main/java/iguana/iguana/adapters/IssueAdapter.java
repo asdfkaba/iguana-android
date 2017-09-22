@@ -46,6 +46,8 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
     private IssueCalls api;
     private Context context;
     private View view;
+    private String sprint;
+    private String sprintview;
 
     public void do_notify() {
         common.order_by(this.order, this.items);
@@ -54,7 +56,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
         notifyDataSetChanged();
     }
 
-    public IssueAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Project project, String status, View rootView) {
+    public IssueAdapter(Context context, OnViewHolderClick listener, OnViewHolderLongClick long_listener, Project project, String status, View rootView, String sprint, String sprintview) {
         super(context, listener, long_listener);
         this.order = "number";
         this.rev = false;
@@ -62,7 +64,9 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
         this.status = status;
         this.api = new IssueCalls(rootView);
         this.context = context;
-        view = rootView;
+        this.sprint = sprint;
+        this.view = rootView;
+        this.sprintview = sprintview;
     }
 
     public void replace_item(Issue item, String curr_user) {
@@ -81,7 +85,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
         System.out.println(i);
 
         // case user issue list;
-        if (project == null && status == null) {
+        if (project == null && status == null && sprint == null && sprintview == null) {
 
             if (idx >= 0) {
                 if (item.getAssignee().contains(curr_user)) {
@@ -105,7 +109,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
         }
 
         // case backlog
-        if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() != null) {
+        if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() != null && sprint == null && sprintview == null) {
             if (idx >= 0) {
                 if (item.getSprint() != null) {
                     items.remove(idx);
@@ -123,7 +127,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
         }
 
         // case issuelist (nosprint)
-        if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null) {
+        if (project != null && status == null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null && sprint == null && sprintview == null) {
             if (idx >= 0) {
                 items.set(idx, item);
                 do_notify = true;
@@ -136,7 +140,7 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
         }
 
         // case column in sprintboard
-        if (project != null && status != null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() != null) {
+        if (project != null && status != null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() != null && sprintview == null) {
             if (idx >= 0) {
                 if (item.getKanbancol().equals(status)) {
                     if (item.getSprint() != null) {
@@ -159,8 +163,9 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
             }
         }
 
+        System.out.println(sprintview);
         // case column in board
-        if (project != null && status != null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null) {
+        if (project != null && status != null && item.getProjectShortName().equals(project.getNameShort()) && project.getCurrentsprint() == null && sprintview == null) {
             if (idx >= 0) {
                 if (item.getKanbancol().equals(status)) {
                     items.set(idx, item);
@@ -171,6 +176,45 @@ public class IssueAdapter extends BaseAdapter<Issue> implements AdapterOrderBy {
                 }
             } else {
                 if (item.getKanbancol().equals(status)) {
+                    items.add(item);
+                    do_notify = true;
+                }
+            }
+        }
+
+        // case Sprintmanager backlog
+        if (sprint != null && sprintview.equals("no") && item.getProjectShortName().equals(project.getNameShort())) {
+            if(idx >= 0) {
+                if (item.getSprint() != null) {
+                    System.out.println("IDX: "+idx);
+                    items.remove(idx);
+                    notifyItemRemoved(idx);
+                } else {
+                    items.set(idx, item);
+                    do_notify = true;
+                }
+            } else {
+                if (item.getSprint() == null) {
+                    items.add(item);
+                    do_notify = true;
+                }
+            }
+        }
+
+        // case Sprintmanager sprint
+        if (sprint != null && sprintview.equals("yes") && item.getProjectShortName().equals(project.getNameShort())) {
+            if(idx >= 0) {
+                if (item.getSprint() == null) {
+                    items.remove(idx);
+                    notifyItemRemoved(idx);
+                } else if (item.getSprint().split("-")[1].equals(sprint)){
+                    items.set(idx, item);
+                    do_notify = true;
+                }
+            } else {
+                System.out.println(item.getSprint());
+                System.out.println(sprint);
+                if (item.getSprint() != null && item.getSprint().split("-")[1].equals(sprint)) {
                     items.add(item);
                     do_notify = true;
                 }

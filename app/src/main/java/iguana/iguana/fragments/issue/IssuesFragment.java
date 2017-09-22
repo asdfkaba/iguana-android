@@ -8,11 +8,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.flipboard.bottomsheet.BottomSheetLayout;
@@ -21,7 +24,11 @@ import com.flipboard.bottomsheet.commons.MenuSheetView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,7 +42,10 @@ import iguana.iguana.fragments.project.BoardBaseFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.models.Issue;
 import iguana.iguana.models.Project;
+import iguana.iguana.models.Sprint;
 import iguana.iguana.remote.apicalls.IssueCalls;
+import iguana.iguana.remote.apicalls.ProjectCalls;
+import iguana.iguana.remote.apicalls.SprintCalls;
 
 
 public class IssuesFragment
@@ -49,9 +59,12 @@ public class IssuesFragment
     private String adapter_order = "number";
     private boolean adapter_reverse = false;
     private IssueCalls api;
+    private ProjectCalls project_api;
     private FragmentCalls calls;
+    private SprintCalls sprint_api;
     private String status;
-    private Menu menu;
+    private String sprint;
+    private String sprintview;
     protected BottomSheetLayout bottomSheetLayout;
 
 
@@ -134,7 +147,10 @@ public class IssuesFragment
                                 api.patchIssue(issue, body);
                                 break;
                             case R.id.menu_issue_add_to_sprint:
-                                body.put("sprint", project.getCurrentsprint().toString().split("-")[1]);
+                                if (sprint != null)
+                                    body.put("sprint", sprint);
+                                else
+                                    body.put("sprint", project.getCurrentsprint().toString().split("-")[1]);
                                 api.patchIssue(issue, body);
                                 break;
                             case R.id.menu_issue_remove_from_sprint:
@@ -156,7 +172,6 @@ public class IssuesFragment
                             case R.id.menu_issue_unfollow:
                                 paricipants = issue.getParticipant();
                                 paricipants.remove(curr_user);
-                                System.out.println(paricipants.toString());
                                 body.put("participant", paricipants.toArray());
 
                                 api.patchIssue(issue, body);
@@ -192,8 +207,13 @@ public class IssuesFragment
         else
             menu.findItem(R.id.menu_issue_follow).setVisible(true);
 
-
-        if (project != null && project.getCurrentsprint() != null) {
+        if (project != null && sprint != null) {
+            if (sprintview != null && sprintview.equals("yes"))
+                menu.findItem(R.id.menu_issue_remove_from_sprint).setVisible(true);
+            else
+                menu.findItem(R.id.menu_issue_add_to_sprint).setVisible(true);
+        }
+        if (project != null && project.getCurrentsprint() != null && sprintview == null) {
             if (item.getSprint() != null && item.getSprint().equals(project.getCurrentsprint()))
                 menu.findItem(R.id.menu_issue_remove_from_sprint).setVisible(true);
             else
@@ -231,31 +251,142 @@ public class IssuesFragment
         EventBus.getDefault().register(this);
         View view = getView();
         api = new IssueCalls(view);
+        sprint_api = new SprintCalls(view);
+        project_api = new ProjectCalls(view);
+
+
         bottomSheetLayout = (BottomSheetLayout) view.findViewById(R.id.bottomsheet);
         bottomSheetLayout.setPeekOnDismiss(true);
-
-
-
         setHasOptionsMenu(true); // makes sure onCreateOptionsMenu() gets called
 
         if (project == null)
             project = getArguments().getParcelable("project");
-        System.out.println(project);
         if  (status == null)
             status = getArguments().getString("status");
+        if  (sprint == null)
+            sprint = getArguments().getString("sprint");
+        if  (sprintview == null)
+            sprintview = getArguments().getString("sprintview");
+
+        FloatingActionButton add = (FloatingActionButton) view.findViewById(R.id.add_button);
+        if (project == null)
+            add.setVisibility(View.GONE);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                calls.IssueCreate(project, sprint, status, sprintview);
+            }
+        });
+
+        if (sprintview != null && sprintview.equals("yes")) {
+            RecyclerView asd = (RecyclerView) view.findViewById(R.id.recycler_view);
+            ViewGroup.LayoutParams params = asd.getLayoutParams();
+            Button left = (Button) view.findViewById(R.id.button_left);
+            Button right = (Button) view.findViewById(R.id.button_right);
+            if (project.getCurrentsprint() == null) {
+                left.setVisibility(View.VISIBLE);
+                left.setText("Start sprint");
+                left.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        HashMap body = new HashMap();
+                        DateTime dt = new DateTime();
+                        DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd");
+                        String test = fmt.print(dt);
+                        body.put("startdate", test);
+                        sprint_api.patchSprint(project, sprint, body);
+                        HashMap proj_body = new HashMap();
+                        proj_body.put("currentsprint", sprint);
+                        project_api.patchProject(project, proj_body);
+                    }
+                });
+                right.setVisibility(View.VISIBLE);
+                right.setText("Remove sprint");
+                right.setOnClickListener(new View.OnClickListener() {
+                                             @Override
+                                             public void onClick(View v) {
+                                                 HashMap body = new HashMap();
+                                                 DateTime dt = new DateTime();
+                                                 DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd");
+                                                 String test = fmt.print(dt);
+                                                 body.put("enddate", test);
+                                                 sprint_api.patchSprint(project, sprint, body);
+                                                 HashMap iss_body;
+                                                 for (Issue iss : adapter.getList()) {
+                                                     iss_body = new HashMap();
+                                                     body.put("sprint", null);
+                                                     api.patchIssue(iss, body);
+                                                 }
+                                             }
+                                         }
+                    );
+            } else {
+                if (project.getCurrentsprint().split("-")[1].equals(sprint)) {
+                    right.setVisibility(View.VISIBLE);
+                    right.setText("Finish sprint");
+                    right.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            HashMap body = new HashMap();
+                            DateTime dt = new DateTime();
+                            DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd");
+                            String test = fmt.print(dt);
+                            body.put("enddate", test);
+                            sprint_api.patchSprint(project, sprint, body);
+                            HashMap proj_body = new HashMap();
+                            proj_body.put("currentsprint", null);
+                            project_api.patchProject(project, proj_body);
+                            // handle issue archive/issue move to backlog
+                            HashMap iss_body;
+                            for (Issue iss : adapter.getList()) {
+                                iss_body = new HashMap();
+                                if (iss.getKanbancol().equals("Done"))
+                                    iss_body.put("archived", true);
+                                else
+                                    iss_body.put("sprint", null);
+                                api.patchIssue(iss, iss_body);
+                            }
+                        }
+                    });
+                } else {
+                    right.setVisibility(View.VISIBLE);
+                    right.setText("Remove sprint");
+                    right.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            HashMap body = new HashMap();
+                            DateTime dt = new DateTime();
+                            DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-dd");
+                            String test = fmt.print(dt);
+                            body.put("enddate", test);
+                            sprint_api.patchSprint(project, sprint, body);
+                            HashMap iss_body;
+                            for (Issue iss : adapter.getList()) {
+                                iss_body = new HashMap();
+                                body.put("sprint", null);
+                                api.patchIssue(iss, body);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+
 
         if (adapter == null) {
             progress = (ProgressBar) view.findViewById(R.id.progressBar);
             progress.setVisibility(View.VISIBLE);
             adapter_reverse = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean("issue_list_reverse" + (project != null ? project.getNameShort() : "!!!"), false);
             adapter_order = getActivity().getPreferences(Context.MODE_PRIVATE).getString("issue_list_order" + (project != null ? project.getNameShort() : "!!!"), "number");
-            adapter = new IssueAdapter(getActivity(), this, this, project, status, view);
+            adapter = new IssueAdapter(getActivity(), this, this, project, status, view, sprint, sprintview);
             adapter.set_order(adapter_order);
             adapter.set_reverse(adapter_reverse);
             if (project == null)
                 api.getIssues(current_page, adapter);
             else
-                api.getProjectIssues(project, current_page, adapter, status);
+                api.getProjectIssues(project, current_page, adapter, status, sprint, sprintview);
         }
 
         recyclerView.setAdapter(adapter);
@@ -270,7 +401,7 @@ public class IssuesFragment
                 if (project == null)
                     api.getIssues(current_page, adapter);
                 else
-                    api.getProjectIssues(project, current_page, adapter, status);
+                    api.getProjectIssues(project, current_page, adapter, status, sprint, sprintview);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -301,18 +432,11 @@ public class IssuesFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // show order by menu entry; set default order
         super.onCreateOptionsMenu(menu, inflater);
-        if(getUserVisibleHint()) {
+        if (getUserVisibleHint()) {
             menu.findItem(R.id.menuSort).setVisible(true);
-            if (adapter != null) {
+            if (adapter != null)
                 set_menu_items(menu, adapter_order, adapter_reverse);
-            }
-            // in project context show add icon
-            if (project != null && status == null)
-                menu.findItem(R.id.add).setVisible(true);
         }
-
-
-
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -320,10 +444,6 @@ public class IssuesFragment
         SharedPreferences.Editor editor = sharedPref.edit();
 
         switch (item.getItemId()) {
-            // create new issue; start IssueCreateFragment
-            case R.id.add:
-                calls.IssueCreate(project);
-                return true;
             // set adapter order type; notify_adapter to reorder
             case R.id.menuSortTitle:
                 adapter.set_order("title");
@@ -366,7 +486,6 @@ public class IssuesFragment
                 }
                 adapter.do_notify();
                 break;
-
             default:
                 return super.onOptionsItemSelected(item);
         }

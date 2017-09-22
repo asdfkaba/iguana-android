@@ -38,23 +38,31 @@ public class IssueCalls extends ApiCalls{
         super(view);
     }
 
-    public void getProjectIssues(Project proj, Integer pa, IssueAdapter ada, String statu) {
+    public void getProjectIssues(Project proj, Integer pa, IssueAdapter ada, String statu, String sprin, String sv) {
         final IssueAdapter adapter = ada;
         final Project project = proj;
         final Integer page = pa;
         final View view = rootView;
         final ProgressBar progress = (ProgressBar) view.findViewById(R.id.progressBar);
         final String status = statu;
+        final String sprint = sprin;
+        final String sprintview = sv;
 
         Map options = new HashMap<String, String>();
         options.put("page", page);
         if (status != null)
             options.put("status", status);
      ;
-        if (project.getCurrentsprint() != null && status != null)
+        if (sprint != null) {
+            if (sprintview != null && sprintview.equals("yes"))
+                options.put("sprint", sprint);
+            else
+                options.put("sprint__isnull", "true");
+        } else if (project.getCurrentsprint() != null && status != null)
             options.put("sprint", project.getCurrentsprint().split("-")[1]);
-        else if (project.getCurrentsprint() != null)
+        else
             options.put("sprint__isnull", "true");
+
 
 
         get_api_service(view).getProjectIssues(project.getNameShort(), options).enqueue(new Callback<IssueResult>() {
@@ -64,7 +72,7 @@ public class IssueCalls extends ApiCalls{
                     adapter.addAll(response.body().getResults());
 
                     if (response.body().getNext() != null) {
-                        getProjectIssues(project, new Integer(page + 1), adapter, status);
+                        getProjectIssues(project, new Integer(page + 1), adapter, status, sprint, sprintview);
                     } else {
                         progress.setVisibility(View.GONE);
                         adapter.do_notify();
@@ -125,7 +133,6 @@ public class IssueCalls extends ApiCalls{
         final EditText storypoints = (EditText) rootView.findViewById(R.id.storypoints);
         final EditText due_date = (EditText) rootView.findViewById(R.id.due_date);
 
-
         get_api_service(rootView).editIssue(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Issue>() {
             @Override
             public void onResponse(Call<Issue> call, Response<Issue> response) {
@@ -134,6 +141,11 @@ public class IssueCalls extends ApiCalls{
                     EventBus.getDefault().postSticky(new issue_changed(response.body()));
                     ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
                 } else {
+                    try {
+                        System.out.println(response.errorBody().string());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     try {
                         JSONObject obj = new JSONObject(response.errorBody().string());
                         Iterator<?> keys = obj.keys();
@@ -153,6 +165,7 @@ public class IssueCalls extends ApiCalls{
                     } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
+
                 }
             }
 
@@ -165,7 +178,6 @@ public class IssueCalls extends ApiCalls{
 
     public void patchIssue(Issue iss, HashMap body) {
         final Issue issue = iss;
-
 
         get_api_service(rootView).patchIssue(issue.getProjectShortName(), issue.getNumber(), body).enqueue(new Callback<Issue>() {
             @Override
@@ -227,6 +239,11 @@ public class IssueCalls extends ApiCalls{
                         }
 
                     } catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        System.out.println(response.errorBody().string());
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }

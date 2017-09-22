@@ -40,6 +40,8 @@ public class IssueCreateFragment extends BaseFragment {
     private CommonMethods common;
     private IssueCalls api;
     private Project project;
+    private String status, sprint;
+    private String sprintview;
 
 
     public IssueCreateFragment() {}
@@ -89,6 +91,15 @@ public class IssueCreateFragment extends BaseFragment {
         api = new IssueCalls(view);
         if (project == null)
             project = getArguments().getParcelable("project");
+        if (status == null)
+            status = getArguments().getString("status");
+        if (sprint == null)
+            sprint = getArguments().getString("sprint");
+        if (sprintview == null)
+            sprintview = getArguments().getString("sprintview");
+
+
+
         Button button = (Button) view.findViewById(R.id.send);
         title = (EditText) view.findViewById(R.id.title);
         description = (EditText) view.findViewById(R.id.description);
@@ -115,6 +126,14 @@ public class IssueCreateFragment extends BaseFragment {
                 String body_due_date = due_date.getText().toString();
 
                 HashMap body = new HashMap<>();
+                if (status != null)
+                    body.put("kanbancol", status);
+                if (sprint != null && sprintview != null && sprintview.equals("yes"))
+                    body.put("sprint", sprint);
+                if (project.getCurrentsprint() != null && status != null)
+                    body.put("sprint", project.getCurrentsprint().split("-")[1]);
+
+
                 body.put("title", title.getText().toString());
                 if (body_storypoints.length()>0)
                     body.put("storypoints", body_storypoints);
@@ -124,7 +143,7 @@ public class IssueCreateFragment extends BaseFragment {
                 if (body_due_date.length()>0)
                     body.put("due_date", body_due_date);
                 body.put("assignee", assignees.getSelectedStrings().toArray());
-
+                System.out.println(body);
                 api.createIssue(project.getNameShort(), body);
             }
         });

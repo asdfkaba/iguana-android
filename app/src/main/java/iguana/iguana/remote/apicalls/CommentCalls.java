@@ -12,12 +12,14 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.CommentAdapter;
 import iguana.iguana.app.MainActivity;
 import iguana.iguana.events.comment_changed;
+import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.timelog_changed;
 import iguana.iguana.models.Comment;
 import iguana.iguana.models.CommentResult;
@@ -115,6 +117,12 @@ public class CommentCalls extends ApiCalls {
             public void onResponse(Call<Comment> call, Response<Comment> response) {
                 if (response.isSuccessful()) {
                     EventBus.getDefault().postSticky(new comment_changed(response.body(), false));
+                    if (!issue.getParticipant().contains(((MainActivity) rootView.getContext()).get_user())) {
+                        List<String> parts = issue.getParticipant();
+                        parts.add(((MainActivity) rootView.getContext()).get_user());
+                        EventBus.getDefault().postSticky(new issue_changed(issue));
+                    }
+
                     ((MainActivity) rootView.getContext()).getFragmentManager().popBackStack();
                 } else {
                     try {

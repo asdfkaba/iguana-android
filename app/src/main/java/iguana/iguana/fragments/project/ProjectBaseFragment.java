@@ -64,8 +64,8 @@ public class ProjectBaseFragment extends Fragment {
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putParcelable("project", project);
+        super.onSaveInstanceState(outState);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -99,6 +99,7 @@ public class ProjectBaseFragment extends Fragment {
         if (!project.getManager().contains(getActivity().getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null)))
             return;
 
+        menu.findItem(R.id.sprints).setVisible(true);
         menu.findItem(R.id.edit_option).setVisible(true);
         menu.findItem(R.id.edit_option).setTitle("Edit " + project.getNameShort());
     }
@@ -107,6 +108,10 @@ public class ProjectBaseFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.edit_option:
                 calls.ProjectEdit(project);
+                break;
+            case R.id.sprints:
+                calls.ProjectSprints(project);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

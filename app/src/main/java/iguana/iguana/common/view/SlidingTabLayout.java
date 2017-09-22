@@ -78,6 +78,8 @@ public class  SlidingTabLayout extends HorizontalScrollView {
 
     private final SlidingTabStrip mTabStrip;
 
+    public SlidingTabStrip getTapStrip() { return mTabStrip; };
+
     public SlidingTabLayout(Context context) {
         this(context, null);
     }

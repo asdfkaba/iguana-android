@@ -3,6 +3,7 @@ package iguana.iguana.models;
 /**
  * Created by moritz on 07.05.17.
  */
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -23,6 +24,7 @@ public class Project implements Parcelable {
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(mData);
     }
+
     public static final Parcelable.Creator<Project> CREATOR
             = new Parcelable.Creator<Project>() {
 
@@ -35,12 +37,15 @@ public class Project implements Parcelable {
         }
     };
 
-    /** recreate object from parcel */
+    /**
+     * recreate object from parcel
+     */
     private Project(Parcel in) {
         mData = in.readInt();
     }
 
     private boolean isSelected;
+
 
     @SerializedName("manager")
     @Expose
@@ -57,6 +62,15 @@ public class Project implements Parcelable {
     @SerializedName("url")
     @Expose
     private String url;
+    @SerializedName("currentsprint")
+    @Expose
+    private String currentsprint;
+    @SerializedName("sprints")
+    @Expose
+    private List<Sprint> sprints = null;
+    @SerializedName("tags")
+    @Expose
+    private List<List<String>> tags = null;
     @SerializedName("name")
     @Expose
     private String name;
@@ -75,9 +89,6 @@ public class Project implements Parcelable {
     @SerializedName("activity_only_for_managers")
     @Expose
     private Boolean activityOnlyForManagers;
-    @SerializedName("currentsprint")
-    @Expose
-    private String currentsprint;
 
     public List<String> getManager() {
         return manager;
@@ -117,6 +128,30 @@ public class Project implements Parcelable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getCurrentsprint() {
+        return currentsprint;
+    }
+
+    public void setCurrentsprint(String currentsprint) {
+        this.currentsprint = currentsprint;
+    }
+
+    public List<Sprint> getSprints() {
+        return sprints;
+    }
+
+    public void setSprints(List<Sprint> sprints) {
+        this.sprints = sprints;
+    }
+
+    public List<List<String>> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<List<String>> tags) {
+        this.tags = tags;
     }
 
     public String getName() {
@@ -167,17 +202,17 @@ public class Project implements Parcelable {
         this.activityOnlyForManagers = activityOnlyForManagers;
     }
 
-    public String getCurrentsprint() {
-        return currentsprint;
+    public void toggleSelected() {
+        this.isSelected = !this.isSelected;
     }
 
-    public void setCurrentsprint(String currentsprint) {
-        this.currentsprint = currentsprint;
+    ;
+
+    public boolean isSelected() {
+        return this.isSelected;
     }
 
-    public void toggleSelected() { this.isSelected = !this.isSelected; };
-
-    public boolean isSelected() { return this.isSelected; };
+    ;
 
     public List<String> getMembers() {
         Collection<String> dev = getDeveloper();
@@ -186,6 +221,6 @@ public class Project implements Parcelable {
             if (!dev.contains(x))
                 dev.add(x);
         }
-       return new ArrayList<String>(dev);
+        return new ArrayList<String>(dev);
     }
 }

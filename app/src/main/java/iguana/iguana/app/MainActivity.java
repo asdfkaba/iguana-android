@@ -52,6 +52,7 @@ import iguana.iguana.fragments.issue.IssuesFragment;
 import iguana.iguana.fragments.project.ProjectBaseFragment;
 import iguana.iguana.fragments.project.ProjectCreateFragment;
 import iguana.iguana.fragments.project.ProjectsFragment;
+import iguana.iguana.fragments.project.SprintBaseFragment;
 import iguana.iguana.fragments.timelog.TimelogCreateFragment;
 import iguana.iguana.fragments.timelog.TimelogsFragment;
 import iguana.iguana.models.Issue;
@@ -330,9 +331,9 @@ public class MainActivity extends AppCompatActivity {
 
                         if (fragment instanceof ProjectBaseFragment) {
                             Project project = ((ProjectBaseFragment) fragment).getProject();
-                            getSupportActionBar().setTitle(project.getNameShort());
+                            if (project != null)
+                                getSupportActionBar().setTitle(project.getNameShort());
                         }
-
                         if (fragment instanceof IssueBaseFragment) {
                             Issue issue = ((IssueBaseFragment) fragment).getIssue();
                             if (issue != null)
