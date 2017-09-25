@@ -95,7 +95,7 @@ public class SettingsFragment extends BaseFragment {
                                         ((MainActivity) getActivity()).reinit_api_service();
 
 
-                                        if (!possible_url.substring(possible_url.length() - 1).equals('/'))
+                                        if (!possible_url.substring(possible_url.length()-1).equals("/"))
                                             possible_url += "/";
 
                                         final String api_url = possible_url;

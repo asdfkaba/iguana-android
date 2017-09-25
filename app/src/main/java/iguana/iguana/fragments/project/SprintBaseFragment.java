@@ -97,8 +97,9 @@ public class SprintBaseFragment extends Fragment {
         Integer running = -1;
         if (project.getCurrentsprint() != null)
             running = Integer.parseInt(project.getCurrentsprint().split("-")[1]);
-        for (int i = 0; i < current.size(); i++) {
-            Integer nr = current.get(i).getSeqnum();
+        System.out.println(project.getSprints());
+        for (int i = 0; i < project.getSprints().size(); i++) {
+            Integer nr = project.getSprints().get(i).getSeqnum();
             sprintmenu.add(R.id.sprint_group, 87456, 0, "Sprint " + nr + (running != -1 && nr == running ? " (running)" : "" ));
         }
         sprintmenu.add(R.id.sprint_group, 87457, 0, "New Sprint" );
@@ -120,8 +121,6 @@ public class SprintBaseFragment extends Fragment {
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onMessageEvent(sprint_changed event) {
         if (event.getSprint().getEnddate() != null) {
-
-
         } else if (event.getSprint().getStartdate() != null) {
             initSprintMenu(menu, null, null);
         } else {
@@ -169,7 +168,7 @@ public class SprintBaseFragment extends Fragment {
             sprint = project.getCurrentsprint().split("-")[1];
         else if (project.getSprints().size() > 0 )
             sprint = project.getSprints().get(0).getSeqnum().toString();
-
+        System.out.println(sprint);
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
 
         api = new SprintCalls(view);

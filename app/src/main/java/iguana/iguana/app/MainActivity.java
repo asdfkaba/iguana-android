@@ -253,7 +253,11 @@ public class MainActivity extends AppCompatActivity {
         //Display the correct fragment.
         if (savedInstanceState != null) {
             currentPosition = savedInstanceState.getInt("position");
-            setActionBarTitle(currentPosition);
+            String title = savedInstanceState.getString("title");
+            if (title != null)
+                getSupportActionBar().setTitle(title);
+            else
+                setActionBarTitle(currentPosition);
         } else {
             selectItem(0);
         }
@@ -334,6 +338,13 @@ public class MainActivity extends AppCompatActivity {
                             if (project != null)
                                 getSupportActionBar().setTitle(project.getNameShort());
                         }
+                        if (fragment instanceof SprintBaseFragment) {
+                            System.out.println("ASDSADSD");
+                            Project project = ((SprintBaseFragment) fragment).getProject();
+                            if (project != null)
+                                getSupportActionBar().setTitle(project.getNameShort());
+                        }
+
                         if (fragment instanceof IssueBaseFragment) {
                             Issue issue = ((IssueBaseFragment) fragment).getIssue();
                             if (issue != null)
@@ -410,6 +421,8 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("position", currentPosition);
+        outState.putString("title", getSupportActionBar().getTitle().toString());
+
     }
 
     private void setActionBarTitle(int position) {

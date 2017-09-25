@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/menu_issue">
-
-
+    android:id="@+id/menu_issue"
+    >f
     <item
         android:id="@+id/menu_issue_edit"
         android:icon="@drawable/ic_edit_black_24dp"
         android:title=""
-        android:visible="true" />
+        android:visible="true"
+        android:padding="0dp"/>
     <item
         android:id="@+id/menu_issue_log_time"
         android:icon="@drawable/ic_access_time_black_24dp"

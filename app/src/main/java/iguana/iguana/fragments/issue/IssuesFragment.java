@@ -214,6 +214,9 @@ public class IssuesFragment
                 menu.findItem(R.id.menu_issue_add_to_sprint).setVisible(true);
         }
         if (project != null && project.getCurrentsprint() != null && sprintview == null) {
+            System.out.println(item.getSprint());
+            System.out.println(project.getCurrentsprint());
+
             if (item.getSprint() != null && item.getSprint().equals(project.getCurrentsprint()))
                 menu.findItem(R.id.menu_issue_remove_from_sprint).setVisible(true);
             else

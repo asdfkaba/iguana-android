@@ -64,14 +64,26 @@ public class ProjectBaseFragment extends Fragment {
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("project", project);
+        if (project != null) {
+            System.out.println("PBF oSIS project != null");
+            outState.putParcelable("project", project);
+        }
+        System.out.println("PBF oSIS");
+        System.out.println(project);
+        System.out.println(outState);
+
         super.onSaveInstanceState(outState);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        setHasOptionsMenu(true);
+        System.out.println(savedInstanceState);
+        System.out.println("PBF oAC");
         if (savedInstanceState != null) {
+            System.out.println("PBF oAC IF");
             project = savedInstanceState.getParcelable("project");
+            System.out.println(project);
         }
     }
 
@@ -96,6 +108,8 @@ public class ProjectBaseFragment extends Fragment {
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        System.out.println("PBF oCOM");
+
         if (!project.getManager().contains(getActivity().getSharedPreferences("api", Context.MODE_PRIVATE).getString("api_user", null)))
             return;
 
@@ -116,12 +130,17 @@ public class ProjectBaseFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-        @Override
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_swipe_tabs_base, container, false);
     }
 
+    public void onCreate(Bundle savedInstanceState) {
+        if (project == null && savedInstanceState != null)
+            project = savedInstanceState.getParcelable("project");
+        super.onCreate(savedInstanceState);
+    }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
