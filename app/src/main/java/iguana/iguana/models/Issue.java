@@ -54,6 +54,9 @@ public class Issue implements Parcelable{
     @SerializedName("project_members")
     @Expose
     private List<String> project_members = null;
+    @SerializedName("project_tags")
+    @Expose
+    private List<List<String>> project_tags = null;
     @SerializedName("participant")
     @Expose
     private List<String> participant = null;
@@ -279,5 +282,12 @@ public class Issue implements Parcelable{
 
     public boolean isSelected() { return this.isSelected; };
 
+    public List<List<String>> getProjectTags() {
+        return project_tags;
+    }
 
+
+    public void setProjectTags(List<List<String>> project_tags) {
+        this.project_tags = project_tags;
+    }
 }

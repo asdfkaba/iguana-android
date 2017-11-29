@@ -33,12 +33,16 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import iguana.iguana.R;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapterBoard;
 import iguana.iguana.adapters.ProjectDetailFragmentAdapterSprint;
+import iguana.iguana.app.MainActivity;
 import iguana.iguana.common.view.SlidingTabLayout;
+import iguana.iguana.events.issue_changed;
 import iguana.iguana.events.project_changed;
 import iguana.iguana.events.sprint_changed;
 import iguana.iguana.fragments.calls.FragmentCalls;
@@ -61,6 +65,8 @@ public class SprintBaseFragment extends Fragment {
     private SprintCalls api;
     private Menu menu;
     private List<Sprint> current;
+    private Map<String, MenuItem> menu_items;
+
 
     public Project getProject() {
         return this.project;
@@ -97,10 +103,10 @@ public class SprintBaseFragment extends Fragment {
         Integer running = -1;
         if (project.getCurrentsprint() != null)
             running = Integer.parseInt(project.getCurrentsprint().split("-")[1]);
-        System.out.println(project.getSprints());
+        menu_items = new HashMap<String, MenuItem>();
         for (int i = 0; i < project.getSprints().size(); i++) {
             Integer nr = project.getSprints().get(i).getSeqnum();
-            sprintmenu.add(R.id.sprint_group, 87456, 0, "Sprint " + nr + (running != -1 && nr == running ? " (running)" : "" ));
+            menu_items.put(project.getSprints().get(i).getSeqnum().toString(), sprintmenu.add(R.id.sprint_group, 87456, 0, "Sprint " + nr + (running != -1 && nr == running ? " (running)" : "" ) +" ("+project.getSprints().get(i).getIssues().size()+")"));
         }
         sprintmenu.add(R.id.sprint_group, 87457, 0, "New Sprint" );
 
@@ -128,6 +134,56 @@ public class SprintBaseFragment extends Fragment {
         }
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(issue_changed event) {
+        if (!event.getIssue().getProjectShortName().equals(project.getNameShort()))
+            return;
+        if (event.getIssue().getSprint() == null) {
+            int i = 0;
+            for (Sprint sprint : project.getSprints()) {
+                System.out.println(sprint.getIssues());
+                System.out.println(event.getIssue().getProjectShortName() + "-" + event.getIssue().getNumber());
+                if (sprint.getIssues().contains(event.getIssue().getProjectShortName() + "-" + event.getIssue().getNumber())) {
+                    System.out.println(sprint.getSeqnum());
+                    List<Sprint> sprints = project.getSprints();
+                    sprints.remove(sprint);
+                    Integer running = null;
+                    if (project.getCurrentsprint() != null)
+                        running = Integer.parseInt(project.getCurrentsprint().split("-")[1]);
+                    menu_items.get(sprint.getSeqnum().toString()).setTitle("Sprint " + sprint.getSeqnum() + (running != null && sprint.getSeqnum() == running ? " (running)" : "") + " (" + (sprint.getIssues().size() - 1) + ")");
+                    sprint.getIssues().remove(event.getIssue().getProjectShortName() + "-" + event.getIssue().getNumber());
+                    sprints.add(i, sprint);
+
+
+                    project.setSprints(sprints);
+                    break;
+                }
+                i++;
+            }
+        }
+        if (event.getIssue().getSprint() != null) {
+            List<Sprint> sprints = project.getSprints();
+            int i = 0;
+            for (Sprint sprint : project.getSprints()) {
+                if (sprint.getIssues().contains(event.getIssue().getProjectShortName() + "-" + event.getIssue().getNumber())) {
+                    return;
+                }
+                if (event.getIssue().getSprint().split("-")[1].equals(sprint.getSeqnum().toString())) {
+                    sprints.remove(sprint);
+                    String n_issue = event.getIssue().getProjectShortName() + "-" + event.getIssue().getNumber();
+                    sprint.getIssues().add(n_issue);
+                    sprints.add(i, sprint);
+                    project.setSprints(sprints);
+                    Integer running = null;
+                    if (project.getCurrentsprint() != null)
+                        running = Integer.parseInt(project.getCurrentsprint().split("-")[1]);
+                    menu_items.get(sprint.getSeqnum().toString()).setTitle("Sprint " + sprint.getSeqnum() + (running != null && sprint.getSeqnum() == running ? " (running)" : "") + " (" + sprint.getIssues().size() + ")");
+                    break;
+                }
+                i++;
+            }
+        }
+    }
 
     @Override
     public void onStop() {

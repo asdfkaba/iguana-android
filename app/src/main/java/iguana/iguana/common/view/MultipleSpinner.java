@@ -28,6 +28,15 @@ public class MultipleSpinner extends Spinner implements
         super.setAdapter(simple_adapter);
     }
 
+    public MultipleSpinner(Context context, int item_layout)
+    {
+        super(context);
+
+        simple_adapter = new ArrayAdapter<String>(context,
+                android.R.layout.simple_spinner_item);
+        super.setAdapter(simple_adapter);
+    }
+
     public MultipleSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
 

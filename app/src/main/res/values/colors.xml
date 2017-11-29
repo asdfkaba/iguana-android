@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="red">#ffff0000</color>
+    <color name="red">#F44336</color>
+    <color name="orange">#FFCC80</color>
+    <color name="brown">#8D6E63</color>
+    <color name="green">#A5D6A7</color>
+    <color name="story">#FFEB3B</color>
+    <color name="bug">#EF6C00</color>
+    <color name="task">#B3E5FC</color>
+
+
     <color name="iguana">#00e5ff</color>
     <color name="iguana_dark">#00B8D4</color>
 </resources>

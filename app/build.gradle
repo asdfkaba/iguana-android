@@ -40,6 +40,7 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'us.feras.mdv:markdownview:1.1.0'
     compile 'com.jakewharton:butterknife:8.8.1'
+    compile 'com.google.android:flexbox:0.3.0'
     compile 'com.github.bernaferrari.bottomsheet:bottomsheet-core:master-SNAPSHOT'
     compile 'com.github.bernaferrari.bottomsheet:bottomsheet-commons:master-SNAPSHOT'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'

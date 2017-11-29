@@ -6,7 +6,7 @@
     <item
         android:id="@+id/menuSort"
         app:showAsAction="ifRoom"
-        android:title="Order by"
+        android:icon="@drawable/ic_filter_and_sort_arrows"
         android:visible="false">
         <menu
             android:id="@+id/sortmenu">

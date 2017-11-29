@@ -90,7 +90,7 @@ public class CommentAdapter extends BaseAdapter<Comment> {
             DateTimeFormatter fmt = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
             String test = fmt.print(dt);
             text.setText(item.getText());
-            info.setText(item.getCreator() + " on " + test);
+            info.setText(item.getCreator() + " / " + test);
             ImageButton edit = (ImageButton) viewHolder.getView(R.id.edit);
             final Comment comment = item;
             if (item.isSelected()) {
